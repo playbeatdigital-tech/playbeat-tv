@@ -161,3 +161,24 @@ Stage Summary:
 - Deliverable 1: category discovery pages (28) + Anime/Series home rows, deep-linkable, browser-verified
 - Deliverable 2: private repo https://github.com/mahbubakhanam177-ai/openstream-tv (main, commit 7c17522) — full app + docs + data pipeline; excluded: third-party repo clone, API cache, screenshots, .env (no secrets committed)
 - Regeneration: python3 scripts/build_stream_catalog.py (catalog), bash scripts/gen_hero_art.sh (art)
+
+---
+Task ID: 9
+Agent: main (Super Z)
+Task: Rebrand app to "Playbeat TV" and rebuild UI as IPTV-style storefront (user reference: upload/pasted_image_1791964193974.png)
+
+Work Log:
+- Foundations: layout.tsx metadata → "Playbeat TV — Free Live TV & Streaming, No Login" + new amber play-tile logo.svg; globals.css .font-display switched serif→Geist sans + .scrollbar-slim; stream.ts storage keys openstream:* → playbeat:* with one-time legacy migration (favorites/recents preserved)
+- NEW channels-panel.tsx: "All channels" right rail — count badge, rounded search, category chips (All + top 6), numbered rows (index, white logo tile w/ onError fallback, name, CC·category·quality meta, per-row play), slim amber scrollbar, footer hint; lazy /api/catalog via shared ensureCatalog
+- app-shell.tsx rewritten as storefront: navbar (logo + PLAYBEAT TV wordmark + search pill + Home/Live TV/Movies/Series/Sports/News pills + channels/bookmark-with-badge/GitHub), left rail (Browse/Live TV/4 promoted categories + My List w/ count + Recently watched + Collection + About & policy + front-row-seat brand stats card), right rail xl+, view state machine unchanged (home/tv/category/collection/about), #watch/#category deep links kept, document titles rebranded, amber 4-col footer, mobile left-nav + right-channels Sheets
+- home-view.tsx rewritten: inset rounded hero card (crossfade backdrops, eyebrow "TURN UP THE MOMENT · cat · quality", tagline headline w/ amber gradient final word, Watch-live-now CTA, 01/06 counter + prev/next, dots), "Your world. Now playing." header, LIVE spotlight duo (big logo-tile card + channel spotlight card w/ favorite + browse buttons), Popular channels section (All/Sports/News/Movies/Kids/Music/Entertainment chips swapping a 5-col poster grid), amber ContentRows, premium banner
+- stream.server/spotlight: popularPicks() (topOverall + topByCategory per chip), warm hue gradients for rows + all 28 category-pages hues (sed swap violet/fuchsia/purple/pink/emerald → amber/orange/yellow/rose/teal/stone)
+- Amber pass: stream-app (chips/badges/icon accents + initialRecents preset & "Recently watched on Playbeat" header), category-view (amber gradient Play-random), player-dialog (loader/unmute-pill/retry), channel-card focus ring
+- Fixed during verify: duplicate POPULAR_N const (500), poster-card w-full breaking carousels (wrapped in fixed-width cells in ContentRow + CategoryView), broken-logo onError fallbacks in panel + spotlight tiles
+- E2E (agent-browser): desktop 1600 storefront renders per reference; REAL playback from panel (10 Bold 1080p, readyState 4, t=76s); hero arrows/dots/counter; #category=movies page (420 ch, related chips); Popular Sports chip swaps grid (beIN/TRT Spor); favorite toggle → badge 1 in navbar/sidebar/toolbar; Recently-watched preset filters grid; mobile 390px no h-scroll; nav + channels Sheets verified; fresh-load console 0 errors; lint clean; dev server restart after transient PID death
+- GitHub: repo renamed via API openstream-tv → playbeat-tv (private:true verified), remote re-pointed, commit aabd5db pushed to main (16 files, +1383/−498); upload/ personal PDFs + dev.pid excluded from commit; token-leak scan on pushed tree: 0 hits
+
+Stage Summary:
+- Deliverable: Playbeat TV storefront at / — dark navy + amber-gold IPTV-style 3-column layout matching the user's reference image, all prior features intact (7,985 iptv-org channels, real playback, favorites/recents, category pages, Collection research view, policy page)
+- Repo: https://github.com/mahbubakhanam177-ai/playbeat-tv (private, main @ aabd5db)
+- Screenshots: scripts/pb-home-top.png, pb-hero2.png, pb-popular2.png, pb-player.png, pb-movies2.png, pb-recents.png, pb-mobile*.png, pb-footer.png
