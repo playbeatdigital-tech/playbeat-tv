@@ -119,3 +119,26 @@ Stage Summary:
 - Deliverable: OpenStream — Free Live TV (open streaming site, no login): 7,985 playable public channels from the safe subset, production player, favorites, recents, deep links, full policy page
 - Screenshot proofs: scripts/verify_player.png, verify_mobile.png, verify_collection.png, verify_final_home.png
 - Rebuild data anytime: python3 scripts/build_stream_catalog.py
+
+---
+Task ID: 7
+Agent: main (Super Z)
+Task: Redesign the OpenStream homepage into a cinematic "Streamplay-style" experience (user reference: upload/Homepage preview.png)
+
+Work Log:
+- Analyzed reference design: glassy sticky header w/ nav, full-bleed hero spotlight + "Featured Selection" side panel, explore-genre chips, carousel rows (poster + wide variants), original-spotlight banner, 4-column footer
+- scripts/pick_featured.py: mined catalog for reliable brand channels (logo + >=2 sources + high quality); hand-picked 6 heroes across distinct themes (Bloomberg TV 4K, France 24, Red Bull TV, Al Jazeera Documentary, Vevo '80s, Tastemade)
+- src/lib/spotlight.ts (server-only): HERO_DEFS w/ per-channel tagline+description+backdrop mapping, TRENDING_IDS curated rail, topByCategory/topOverall rail builders (logo + q>=720 floors, quality/source ranking)
+- Generated 7 AI artworks via z-ai CLI -> public/hero/ (6 hero backdrops + banner): first attempts 429-throttled, then 400 "size must be multiple of 32" (1440x720 invalid) -> 1344x768 fixed all; scripts/gen_hero_art.sh persisted w/ throttle+retry
+- NEW src/components/stream/app-shell.tsx: client global chrome replacing site-shell.tsx - sticky glass header (logo, nav underline, search/bookmark-with-count/GitHub actions, mobile hamburger panel), Home/Live TV/Collection/About views, SHARED PlayerDialog at shell level, lazy #watch deep-link resolution from any view (catalogRef cache), 4-column footer (brand+badges, Discover category links, Platform, Open source) + legal bar
+- NEW src/components/stream/home-view.tsx: hero spotlight (crossfading backdrops, 9s auto-advance w/ timer reset on interaction, serif display title, mono meta line w/ LIVE pulse, tagline, description, genre chips, Watch Now / View Details popover (status/origin/quality/sources) / bookmark, dots) + Featured Selection glass panel (1/6 counter, prev/next, per-row play buttons) + Explore categories chips w/ All-categories popover + ContentRow carousels (scrollBy arrows, snap) + PosterCard 2:3 / WideCard 16:9 (gradient hues, logo, LIVE/quality badges, hover play, favorite) + SpotlightBanner (banner art w/ mask, floating mini card, Browse-all/Policy CTAs)
+- REFACTOR stream-app.tsx: player + deep links lifted to shell; new props onPlay/initialCategory/initialMyList/searchFocusKey (ref-focus signal); key=navKey remount for presets; amber->violet accents (also channel-card + player-dialog)
+- page.tsx rewritten: server builds heroItems/homeRows/counts -> <AppShell>; About + Collection passed as nodes; globals.css: .font-display (Georgia serif) + .scrollbar-hide
+- Browser E2E: REAL PLAYBACK from Home (Red Bull TV live motocross w/ captions, tap-to-unmute, LIVE badge); Bloomberg 4K exercised slow-connect path (geo; retry UI by design); auto-advance + dots + sidebar selection in sync (aria-selected verified); View Details popover; Music chip -> Live TV preset (619); recents rail persists across views; Collection + About render intact; deep link #watch auto-opens player on fresh load; mobile 390px hero/menu/chips OK, no h-scroll; all 7 hero images naturalWidth>0; fresh-load console 0 errors/warnings; GET / + /api/catalog 200; lint clean
+- Fixed during verify: leftover onPlay={play} in recents rail (play renamed to onPlay prop) caught via browser error overlay
+
+Stage Summary:
+- Deliverable: cinematic Streamplay-style homepage for OpenStream at / (single route, no login) - hero spotlight rotation over 6 curated legal channels w/ AI backdrops, featured-selection panel, category chips, 8 discovery rails, open-source spotlight banner, production footer
+- Legal posture unchanged: only iptv-org public free-to-air index (7,985 channels), no high-risk sites, no media hosting; policy copy in About + footer
+- Screenshots: scripts/shot-final-hero.png, shot-final-hero2.png, shot-deeplink.png, shot-mobile-hero.png, shot-footer.png
+- Rebuild artwork: bash scripts/gen_hero_art.sh (skips existing); rebuild catalog: python3 scripts/build_stream_catalog.py

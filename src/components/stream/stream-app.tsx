@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+/* Note: the HLS player + #watch deep links live in AppShell (shared with Home). */
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +15,6 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { PlayerDialog } from "@/components/stream/player-dialog";
 import { ChannelCard } from "@/components/stream/channel-card";
 import { cn } from "@/lib/utils";
 import {
@@ -23,7 +23,6 @@ import {
   getFavoritesSnapshot,
   getRecentsServerSnapshot,
   getRecentsSnapshot,
-  pushRecent,
   subscribeFavorites,
   subscribeRecents,
   toggleFavorite,
@@ -54,6 +53,10 @@ export interface StreamAppProps {
   catCounts: Record<string, number>;
   total: number;
   generatedAt: string;
+  onPlay: (channel: StreamChannel) => void;
+  initialCategory?: string;
+  initialMyList?: boolean;
+  searchFocusKey?: number;
 }
 
 export function StreamApp({
@@ -63,6 +66,10 @@ export function StreamApp({
   catCounts,
   total,
   generatedAt,
+  onPlay,
+  initialCategory = "all",
+  initialMyList = false,
+  searchFocusKey = 0,
 }: StreamAppProps) {
   /* ---------- data ---------- */
   const [catalog, setCatalog] = useState<StreamCatalog | null>(null);
@@ -78,43 +85,23 @@ export function StreamApp({
     getRecentsServerSnapshot
   );
 
-  /* ---------- filters ---------- */
+  /* ---------- filters (initialized from AppShell presets) ---------- */
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("all");
+  const [category, setCategory] = useState(initialCategory);
   const [country, setCountry] = useState("all");
-  const [myListOnly, setMyListOnly] = useState(false);
+  const [myListOnly, setMyListOnly] = useState(initialMyList);
   const [visible, setVisible] = useState(PAGE_SIZE);
 
-  /* ---------- player ---------- */
-  const [playerChannel, setPlayerChannel] = useState<StreamChannel | null>(null);
-  const [playerOpen, setPlayerOpen] = useState(false);
-
   const gridRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
-  const play = useCallback((channel: StreamChannel) => {
-    setPlayerChannel(channel);
-    setPlayerOpen(true);
-    pushRecent(channel.id);
-    window.history.replaceState(null, "", `#watch=${channel.id}`);
-  }, []);
-
-  /* load full catalog lazily (2MB, gzipped ~400KB) + honor #watch deep links */
+  /* load full catalog lazily (2MB, gzipped ~400KB) */
   useEffect(() => {
     let cancelled = false;
     fetch("/api/catalog")
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((data: StreamCatalog) => {
-        if (cancelled) return;
-        setCatalog(data);
-        const m = /^#watch=(.+)$/.exec(window.location.hash);
-        if (m) {
-          const ch = data.channels.find((c) => c.id === m[1]);
-          if (ch) {
-            setPlayerChannel(ch);
-            setPlayerOpen(true);
-            pushRecent(ch.id);
-          }
-        }
+        if (!cancelled) setCatalog(data);
       })
       .catch(() => {
         if (!cancelled) setCatalogError(true);
@@ -124,22 +111,15 @@ export function StreamApp({
     };
   }, []);
 
-  /* live hashchange support: pasting a #watch=<id> link into an open tab */
+  /* header search button focuses this input (signal from AppShell) */
   useEffect(() => {
-    if (!catalog) return;
-    const onHash = () => {
-      const m = /^#watch=(.+)$/.exec(window.location.hash);
-      if (!m) return;
-      const ch = catalog.channels.find((c) => c.id === m[1]);
-      if (ch) play(ch);
-    };
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  }, [catalog, play]);
+    if (searchFocusKey > 0) searchRef.current?.focus();
+  }, [searchFocusKey]);
 
   const onToggleFavorite = useCallback((id: string) => {
     toggleFavorite(id);
   }, []);
+  // playback is handled by the shared player in AppShell via the onPlay prop
 
   const isFavorite = useCallback((id: string) => favs.includes(id), [favs]);
 
@@ -201,7 +181,7 @@ export function StreamApp({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="flex items-center gap-2 text-lg font-bold text-zinc-100">
-              <PlayCircle className="size-5 text-amber-400" />
+              <PlayCircle className="size-5 text-violet-400" />
               Free live TV, straight in your browser
             </h2>
             <p className="mt-1 text-sm text-zinc-500">
@@ -233,7 +213,7 @@ export function StreamApp({
           title="Continue watching"
           icon={<History />}
           channels={recentChannels}
-          onPlay={play}
+          onPlay={onPlay}
           isFavorite={isFavorite}
           onToggleFavorite={onToggleFavorite}
         />
@@ -245,9 +225,10 @@ export function StreamApp({
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
             <Input
+              ref={searchRef}
               value={query}
               onChange={(e) => applyFilter(() => setQuery(e.target.value))}
-              placeholder="Search 7,985 channels…"
+              placeholder={`Search ${total.toLocaleString()} channels…`}
               className="border-zinc-800 bg-zinc-900/60 pl-9 text-zinc-100 placeholder:text-zinc-600"
               aria-label="Search channels"
             />
@@ -409,7 +390,7 @@ export function StreamApp({
           title="Featured"
           icon={<Sparkles />}
           channels={featured}
-          onPlay={play}
+          onPlay={onPlay}
           isFavorite={isFavorite}
           onToggleFavorite={onToggleFavorite}
         />
@@ -421,7 +402,7 @@ export function StreamApp({
           title="My List"
           icon={<Heart />}
           channels={favChannels}
-          onPlay={play}
+          onPlay={onPlay}
           isFavorite={isFavorite}
           onToggleFavorite={onToggleFavorite}
         />
@@ -437,7 +418,7 @@ export function StreamApp({
                   <ChannelCard
                     key={ch.id}
                     channel={ch}
-                    onPlay={play}
+                    onPlay={onPlay}
                     isFavorite={isFavorite}
                     onToggleFavorite={onToggleFavorite}
                   />
@@ -485,24 +466,6 @@ export function StreamApp({
         )}
       </div>
 
-      {/* player */}
-      <PlayerDialog
-        channel={playerChannel}
-        open={playerOpen}
-        onOpenChange={(o) => {
-          setPlayerOpen(o);
-          if (!o) {
-            window.history.replaceState(
-              null,
-              "",
-              window.location.pathname + window.location.search
-            );
-          }
-        }}
-        isFavorite={isFavorite}
-        onToggleFavorite={onToggleFavorite}
-        categoryNames={categoryNames}
-      />
     </section>
   );
 }
@@ -529,7 +492,7 @@ function Chip({
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
         active
-          ? "border-amber-500/60 bg-amber-500/15 text-amber-300"
+          ? "border-violet-500/60 bg-violet-500/15 text-violet-300"
           : "border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:border-zinc-700 hover:bg-zinc-900 hover:text-zinc-200"
       )}
     >
@@ -538,7 +501,7 @@ function Chip({
       <span
         className={cn(
           "rounded-full px-1.5 py-px font-mono text-[10px]",
-          active ? "bg-amber-500/20 text-amber-200" : "bg-zinc-800 text-zinc-500"
+          active ? "bg-violet-500/20 text-violet-200" : "bg-zinc-800 text-zinc-500"
         )}
       >
         {count}
@@ -565,7 +528,7 @@ function Rail({
   return (
     <div className="mt-5" aria-label={title}>
       <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-zinc-300">
-        <span className="[&>svg]:size-4 [&>svg]:text-amber-400">{icon}</span>
+        <span className="[&>svg]:size-4 [&>svg]:text-violet-400">{icon}</span>
         {title}
         <span className="font-mono text-xs text-zinc-600">{channels.length}</span>
       </h3>

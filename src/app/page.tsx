@@ -1,185 +1,81 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CollectionPanel } from "@/components/collection/collection-panel";
-import { SiteShell } from "@/components/stream/site-shell";
-import type { StreamAppProps } from "@/components/stream/stream-app";
+import { AppShell } from "@/components/stream/app-shell";
 import { meta } from "@/lib/collection";
 import {
   catalog,
   countByCategory,
-  featuredChannels,
 } from "@/lib/stream.server";
+import { heroItems, homeRows } from "@/lib/spotlight";
 import {
   CheckCircle2,
   Database,
-  ExternalLink,
-  Github,
-  Globe,
   Radio,
   ScrollText,
   ShieldCheck,
 } from "lucide-react";
 
 export default function Home() {
-  const streamProps: StreamAppProps = {
-    featured: featuredChannels(18),
-    categories: catalog.categories,
-    countries: catalog.countries,
-    catCounts: countByCategory(),
-    total: catalog.meta.channels,
-    generatedAt: catalog.meta.generatedAt.slice(0, 10),
-  };
-
   const availabilityDate = meta.availabilityGeneratedAt.slice(0, 10);
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
-      {/* Header */}
-      <header className="border-b border-zinc-800/80 bg-zinc-950/95">
-        <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="inline-flex size-9 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400">
-                  <Globe className="size-5" />
-                </span>
-                <div>
-                  <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
-                    OpenStream — Free Live TV
-                  </h1>
-                  <p className="text-sm text-zinc-500">
-                    Open streaming app · no login, no tracking · built from the{" "}
-                    <a
-                      href={meta.repoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-zinc-400 underline decoration-zinc-700 underline-offset-2 hover:text-amber-400"
-                    >
-                      awesome-zhuiju-free
-                    </a>{" "}
-                    safe subset · content index by{" "}
-                    <a
-                      href={catalog.meta.sourceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-zinc-400 underline decoration-zinc-700 underline-offset-2 hover:text-amber-400"
-                    >
-                      iptv-org
-                    </a>
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-                className="border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100"
-              >
-                <a
-                  href={catalog.meta.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Github className="size-4" />
-                  iptv-org
-                  <ExternalLink className="size-3" />
-                </a>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                asChild
-                className="border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100"
-              >
-                <a
-                  href={meta.repoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Github className="size-4" />
-                  Source repo
-                  <ExternalLink className="size-3" />
-                </a>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main */}
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
-        <SiteShell
-          streamProps={streamProps}
-          collection={
-            <section aria-label="Curated collection browser" className="flex-1">
-              <div className="mb-4 flex flex-wrap items-center gap-1.5">
-                <Badge
-                  variant="outline"
-                  className="border-zinc-800 bg-zinc-900/60 font-mono text-zinc-400"
-                >
-                  {meta.total} resources
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="border-zinc-800 bg-zinc-900/60 font-mono text-zinc-400"
-                >
-                  {Object.keys(meta.categoryCounts).length} categories
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="border-zinc-800 bg-zinc-900/60 font-mono text-zinc-400"
-                >
-                  <Database className="size-3" />
-                  List updated {meta.resourcesUpdatedAt}
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="border-zinc-800 bg-zinc-900/60 font-mono text-zinc-400"
-                >
-                  Availability checked {availabilityDate}
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="border-zinc-800 bg-zinc-900/60 text-zinc-500"
-                >
-                  {meta.license}
-                </Badge>
-              </div>
-              <CollectionPanel />
-            </section>
-          }
-          about={<AboutSection channels={catalog.meta.channels} generatedAt={catalog.meta.generatedAt.slice(0, 10)} />}
-        />
-      </main>
-
-      {/* Footer */}
-      <footer className="mt-auto border-t border-zinc-800/80 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
-        <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6">
-          <p className="text-xs leading-relaxed text-zinc-600">
-            OpenStream hosts no media — it is a browser for publicly available
-            free-to-air streams indexed by the open-source{" "}
-            <a
-              href={catalog.meta.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-zinc-700 underline-offset-2 hover:text-zinc-400"
+    <AppShell
+      hero={heroItems()}
+      rows={homeRows()}
+      categories={catalog.categories}
+      countries={catalog.countries}
+      catCounts={countByCategory()}
+      total={catalog.meta.channels}
+      countriesCount={catalog.meta.countries}
+      generatedAt={catalog.meta.generatedAt.slice(0, 10)}
+      sourceUrl={catalog.meta.sourceUrl}
+      repoUrl={meta.repoUrl}
+      collection={
+        <section aria-label="Curated collection browser" className="flex-1">
+          <div className="mb-4 flex flex-wrap items-center gap-1.5">
+            <Badge
+              variant="outline"
+              className="border-zinc-800 bg-zinc-900/60 font-mono text-zinc-400"
             >
-              iptv-org
-            </a>{" "}
-            project (catalog generated {catalog.meta.generatedAt.slice(0, 10)}).
-            Only open-source, maintainer-declared low-copyright-risk sources are
-            used; all streaming sites flagged high copyright risk by the source
-            repository are excluded. Streams are provided by third parties and
-            availability varies by region. See{" "}
-            <span className="text-zinc-500">About &amp; Content Policy</span> for
-            details.
-          </p>
-        </div>
-      </footer>
-    </div>
+              {meta.total} resources
+            </Badge>
+            <Badge
+              variant="outline"
+              className="border-zinc-800 bg-zinc-900/60 font-mono text-zinc-400"
+            >
+              {Object.keys(meta.categoryCounts).length} categories
+            </Badge>
+            <Badge
+              variant="outline"
+              className="border-zinc-800 bg-zinc-900/60 font-mono text-zinc-400"
+            >
+              <Database className="size-3" />
+              List updated {meta.resourcesUpdatedAt}
+            </Badge>
+            <Badge
+              variant="outline"
+              className="border-zinc-800 bg-zinc-900/60 font-mono text-zinc-400"
+            >
+              Availability checked {availabilityDate}
+            </Badge>
+            <Badge
+              variant="outline"
+              className="border-zinc-800 bg-zinc-900/60 text-zinc-500"
+            >
+              {meta.license}
+            </Badge>
+          </div>
+          <CollectionPanel />
+        </section>
+      }
+      about={
+        <AboutSection
+          channels={catalog.meta.channels}
+          generatedAt={catalog.meta.generatedAt.slice(0, 10)}
+        />
+      }
+    />
   );
 }
 
@@ -196,7 +92,7 @@ function AboutSection({
     <section aria-label="About and content policy" className="mx-auto max-w-3xl space-y-6 pb-6">
       <div>
         <h2 className="flex items-center gap-2 text-lg font-bold text-zinc-100">
-          <ScrollText className="size-5 text-amber-400" />
+          <ScrollText className="size-5 text-violet-400" />
           About OpenStream
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-zinc-400">
@@ -205,7 +101,7 @@ function AboutSection({
             href={meta.repoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-amber-400/90 underline-offset-2 hover:underline"
+            className="text-violet-400/90 underline-offset-2 hover:underline"
           >
             laoma528/awesome-zhuiju-free
           </a>{" "}
@@ -217,7 +113,7 @@ function AboutSection({
             href={catalog.meta.sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-amber-400/90 underline-offset-2 hover:underline"
+            className="text-violet-400/90 underline-offset-2 hover:underline"
           >
             iptv-org
           </a>
@@ -290,7 +186,7 @@ function AboutSection({
             href="https://github.com/iptv-org/iptv/issues"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-amber-400/90 underline-offset-2 hover:underline"
+            className="text-violet-400/90 underline-offset-2 hover:underline"
           >
             iptv-org issue tracker
           </a>
@@ -305,7 +201,7 @@ function AboutSection({
             href={meta.repoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-amber-400/90 underline-offset-2 hover:underline"
+            className="text-violet-400/90 underline-offset-2 hover:underline"
           >
             awesome-zhuiju-free
           </a>{" "}
@@ -314,7 +210,7 @@ function AboutSection({
             href={catalog.meta.sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-amber-400/90 underline-offset-2 hover:underline"
+            className="text-violet-400/90 underline-offset-2 hover:underline"
           >
             iptv-org
           </a>{" "}
@@ -323,7 +219,7 @@ function AboutSection({
             href="https://github.com/video-dev/hls.js"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-amber-400/90 underline-offset-2 hover:underline"
+            className="text-violet-400/90 underline-offset-2 hover:underline"
           >
             hls.js
           </a>{" "}

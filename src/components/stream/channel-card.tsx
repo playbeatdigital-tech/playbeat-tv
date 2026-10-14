@@ -32,7 +32,7 @@ export const ChannelCard = memo(function ChannelCard({
       }}
       className={cn(
         "group flex h-full cursor-pointer flex-col gap-2.5 rounded-xl border border-zinc-800 bg-zinc-900/60 p-3 transition-colors",
-        "hover:border-zinc-600 hover:bg-zinc-900 focus-visible:outline-2 focus-visible:outline-amber-500"
+        "hover:border-zinc-600 hover:bg-zinc-900 focus-visible:outline-2 focus-visible:outline-violet-500"
       )}
     >
       {/* logo tile */}
@@ -51,7 +51,7 @@ export const ChannelCard = memo(function ChannelCard({
         ) : (
           <TvMinimalPlay className="size-8 text-zinc-700" />
         )}
-        <span className="absolute left-1.5 top-1.5 rounded bg-black/70 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-emerald-400">
+        <span className="absolute left-1.5 top-1.5 rounded bg-black/70 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-amber-300">
           {qualityLabel(channel)}
         </span>
         <button

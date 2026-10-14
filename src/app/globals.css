@@ -120,3 +120,19 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ---------- OpenStream homepage utilities ---------- */
+
+/* cinematic serif for hero display titles */
+.font-display {
+  font-family: Georgia, "Times New Roman", "Noto Serif", serif;
+}
+
+/* hide horizontal scrollbars on carousels (wheel/touch/arrow nav still works) */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
