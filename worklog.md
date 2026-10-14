@@ -83,3 +83,17 @@ Stage Summary:
 - Panel now 100% English: UI labels + all 119 resource names/summaries/notes/tags translated
 - Original Chinese fields retained in data for playlist exclusion logic and bilingual search
 - Translation pipeline scripts persisted: translate_collection_en.mjs, fix_en_cjk.mjs, patch_remaining_en.mjs (cache: en_translations.json)
+
+---
+Task ID: 5-verify
+Agent: main (Super Z)
+Task: Post-continuation verification of the English UI switch (no code changes needed)
+
+Work Log:
+- Context resumed after overflow; checked worklog + all 9 UI files (layout, page, collection.ts, status.tsx, collection-panel, resource-card, resource-dialog, playlist.ts, playlist-view) - all English already, consistent with Task 5 entry
+- rg scan for CJK chars across src/app + src/components: 0 matches (data en-overlay approach holds)
+- Browser re-verified via agent-browser (fresh reload, console cleared): header/stat tabs/category chips/cards English; Safe playlist tab renders groups (Live TV sources 3 / Anime-Bangumi 5 / Media apps 3) with Copy/Open buttons; detail dialog shows Maintainer ratings / Risk profile / Daily availability check with High/Medium/Unknown values; html lang="en"; console: 0 errors/warnings
+
+Stage Summary:
+- English UI state confirmed intact after session continuation; no fixes required
+- Both pending features (safe playlist + English UI) are live on port 3000
