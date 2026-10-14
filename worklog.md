@@ -66,3 +66,20 @@ Work Log:
 Stage Summary:
 - New 安全播放列表 view: only publicly-legal IPTV sources + open-source tools; no high-risk streaming sites, no Chinese drama content
 - Honest disclaimer that "no copyright risk" = repo self-declared labels, not legal guarantee
+
+---
+Task ID: 5
+Agent: main (Super Z)
+Task: Switch the entire preview panel language from Chinese to English (user request "change all language in English")
+
+Work Log:
+- Translated all UI strings to English across 9 files: lib/collection.ts (SCORE_LABELS, categoryLabel -> .en, AVAILABILITY_LABELS, REGION_LABELS map GLOBAL/CN, added optional `en` overlay to ResourceItem), status.tsx (Reachable/Restricted/Unreachable/Not checked, High copyright risk, Recommended/Use with caution/Removed), resource-card.tsx (Details/Visit, Response/Checked), resource-dialog.tsx (Maintainer ratings, Risk profile (maintainer-declared), Daily availability check, Maintainer verification notes, method map, Added/Submitted by, Open website), collection-panel.tsx (stat tabs, search placeholder, sort/risk/verification selects, category chips, Showing X of Y resources, Featured only, Reset, empty state), playlist.ts (5 group labels+desc in English, CN_CONTENT_TAGS_EN display list), playlist-view.tsx (criteria banner, badges, Copy all links, toasts), page.tsx (header/badges/footer), layout.tsx (metadata + lang="en")
+- Translated all 119 items' Chinese data (name/summary/summaryShort/notes/tags) into an `en` overlay per item via z-ai-web-dev-sdk (scripts/translate_collection_en.mjs, batched, cached in scripts/en_translations.json); originals kept so lib/playlist.ts Chinese-content exclusion logic still works and Chinese search terms still match
+- Fixed 27 items with leftover CJK in en fields: v1 object-array pass unreliable (tags length mismatches + 429 rate limits); rewrote as per-string pass (scripts/fix_en_cjk.mjs) + hand-patched final 7 fields (scripts/patch_remaining_en.mjs); final check: 0 items with CJK in en fields
+- UI components read item.en?.field ?? item.field; search haystack covers both English and original Chinese fields
+- Verification: lint clean; grid view/header/badges/chips/cards all English (GazeVideo, Freeloaders' Alliance...); dialog ratings/risk profile/availability/notes English; Safe playlist criteria banner/badges/groups/rows English; footer English; search "anime"->10, Chinese term via native input event ->4, Unreachable tab->9 of 119; fresh reload console: 0 errors (only HMR/DevTools info); mobile 390px OK; html lang="en"
+
+Stage Summary:
+- Panel now 100% English: UI labels + all 119 resource names/summaries/notes/tags translated
+- Original Chinese fields retained in data for playlist exclusion logic and bilingual search
+- Translation pipeline scripts persisted: translate_collection_en.mjs, fix_en_cjk.mjs, patch_remaining_en.mjs (cache: en_translations.json)

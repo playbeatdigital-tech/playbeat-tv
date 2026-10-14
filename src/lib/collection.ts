@@ -37,6 +37,15 @@ export interface ResourceItem {
   addedAt: string | null;
   featured: boolean;
   availability: Availability | null;
+  /** English localization overlay (translated from the original Chinese source data). */
+  en?: {
+    name: string;
+    summary: string;
+    summaryShort: string;
+    notes: string;
+    tags: string[];
+    regions: string[];
+  };
 }
 
 export interface CategoryMeta {
@@ -66,27 +75,32 @@ export const meta = dataset.meta;
 export const categories = dataset.categories;
 
 export const SCORE_LABELS: Record<string, string> = {
-  more: "资源量",
-  speed: "速度",
-  clean: "广告清洁度",
-  stable: "稳定性",
-  ease: "易用性",
+  more: "Content library",
+  speed: "Speed",
+  clean: "Ad cleanliness",
+  stable: "Stability",
+  ease: "Ease of use",
 };
 
 export function categoryLabel(cat: string): string {
-  return categories[cat]?.zh ?? cat;
+  return categories[cat]?.en ?? cat;
 }
 
-export function categoryZh(cat: string): string {
-  return categories[cat]?.zh ?? cat;
-}
-
-export const AVAILABILITY_ZH: Record<string, string> = {
-  reachable: "可达",
-  restricted: "受限",
-  unreachable: "无法访问",
-  unchecked: "未检测",
+export const AVAILABILITY_LABELS: Record<string, string> = {
+  reachable: "Reachable",
+  restricted: "Restricted",
+  unreachable: "Unreachable",
+  unchecked: "Not checked",
 };
+
+export const REGION_LABELS: Record<string, string> = {
+  GLOBAL: "Global",
+  CN: "Mainland China",
+};
+
+export function regionLabel(region: string): string {
+  return REGION_LABELS[region] ?? region;
+}
 
 export function formatResponseTime(ms: number | null): string {
   if (ms == null) return "—";

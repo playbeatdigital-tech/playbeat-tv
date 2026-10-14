@@ -21,27 +21,27 @@ export const AVAILABILITY_META: Record<
   { label: string; dot: string; badgeCls: string; icon: React.ReactNode }
 > = {
   reachable: {
-    label: "可达",
+    label: "Reachable",
     dot: "bg-emerald-400",
     badgeCls:
       "border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/15",
     icon: <CheckCircle2 className="size-3" />,
   },
   restricted: {
-    label: "受限",
+    label: "Restricted",
     dot: "bg-amber-400",
     badgeCls:
       "border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/15",
     icon: <ShieldAlert className="size-3" />,
   },
   unreachable: {
-    label: "无法访问",
+    label: "Unreachable",
     dot: "bg-rose-400",
     badgeCls: "border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/15",
     icon: <ShieldX className="size-3" />,
   },
   unchecked: {
-    label: "未检测",
+    label: "Not checked",
     dot: "bg-zinc-500",
     badgeCls: "border-zinc-700 bg-zinc-800/60 text-zinc-400 hover:bg-zinc-800",
     icon: <CircleDashed className="size-3" />,
@@ -69,20 +69,20 @@ export function AvailabilityBadge({
 
 export const RISK_META: Record<RiskLevel, { label: string; badgeCls: string }> = {
   high: {
-    label: "高版权风险",
+    label: "High copyright risk",
     badgeCls: "border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/15",
   },
   medium: {
-    label: "中等风险",
+    label: "Medium risk",
     badgeCls: "border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/15",
   },
   low: {
-    label: "低风险",
+    label: "Low risk",
     badgeCls:
       "border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/15",
   },
   unknown: {
-    label: "风险未知",
+    label: "Unknown risk",
     badgeCls: "border-zinc-700 bg-zinc-800/60 text-zinc-400 hover:bg-zinc-800",
   },
 };
@@ -104,18 +104,18 @@ export const VERIFICATION_META: Record<
   { label: string; badgeCls: string; icon: React.ReactNode }
 > = {
   recommended: {
-    label: "推荐",
+    label: "Recommended",
     badgeCls:
       "border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/15",
     icon: <ThumbsUp className="size-3" />,
   },
   caution: {
-    label: "谨慎使用",
+    label: "Use with caution",
     badgeCls: "border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/15",
     icon: <AlertTriangle className="size-3" />,
   },
   removed: {
-    label: "已移除",
+    label: "Removed",
     badgeCls: "border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/15",
     icon: <Trash2 className="size-3" />,
   },
@@ -137,7 +137,7 @@ export function FeaturedStar({ className }: { className?: string }) {
   return (
     <Star
       className={cn("size-3.5 fill-amber-400 text-amber-400", className)}
-      aria-label="精选"
+      aria-label="Featured"
     />
   );
 }

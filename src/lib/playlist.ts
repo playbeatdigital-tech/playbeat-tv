@@ -13,6 +13,16 @@ export const CN_CONTENT_TAGS = [
   "国产",
 ];
 
+/** English display names for the excluded Chinese-content tags (UI only). */
+export const CN_CONTENT_TAGS_EN = [
+  "CN dramas",
+  "Chinese series",
+  "Mandarin content",
+  "Mainland China",
+  "TV series",
+  "HK dramas",
+];
+
 /** Categories eligible for the safe playlist (streaming-relevant; subtitles etc. excluded). */
 export const PLAYLIST_CATEGORIES = [
   "subscription",
@@ -28,28 +38,28 @@ export type PlaylistGroupKey = "live" | "anime" | "player" | "app" | "tool";
 export const PLAYLIST_GROUPS: { key: PlaylistGroupKey; label: string; desc: string }[] = [
   {
     key: "live",
-    label: "公开直播源",
-    desc: "公开、合法的全球 IPTV 频道集合，链接可直接播放",
+    label: "Live TV sources",
+    desc: "Public, legal global IPTV channel lists with directly playable links",
   },
   {
     key: "anime",
-    label: "动漫 / 番剧",
-    desc: "开源追番应用，内容以日本动漫为主",
+    label: "Anime / Bangumi",
+    desc: "Open-source anime apps focused on Japanese animation",
   },
   {
     key: "app",
-    label: "影视应用（需自配源）",
-    desc: "聚合壳应用本身不存储内容，播放内容取决于用户配置的来源",
+    label: "Media apps (bring your own sources)",
+    desc: "Aggregator shells store no content themselves — playback depends on user-configured sources",
   },
   {
     key: "player",
-    label: "播放器 / TVBox 壳",
-    desc: "开源播放器与 TVBox 空壳，本身不含任何片源",
+    label: "Players / TVBox shells",
+    desc: "Open-source players and empty TVBox shells with no built-in content",
   },
   {
     key: "tool",
-    label: "辅助工具",
-    desc: "网盘搜索 / 转存等辅助开源工具",
+    label: "Utility tools",
+    desc: "Open-source helpers for cloud-drive search / transfer",
   },
 ];
 
@@ -104,7 +114,7 @@ export function buildSafePlaylist(includeTools: boolean) {
     ...g,
     items: list
       .filter((i) => groupOf(i) === g.key)
-      .sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name, "zh-Hans-CN")),
+      .sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name, "en")),
   })).filter((g) => g.items.length > 0);
 
   return {

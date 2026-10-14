@@ -20,10 +20,10 @@ export default function Home() {
                 </span>
                 <div>
                   <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
-                    追剧免费资源 — 影视合集预览
+                    Awesome Zhuiju Free — Movie Collection Preview
                   </h1>
                   <p className="text-sm text-zinc-500">
-                    浏览{" "}
+                    Browsable preview of the{" "}
                     <a
                       href={meta.repoUrl}
                       target="_blank"
@@ -32,7 +32,7 @@ export default function Home() {
                     >
                       awesome-zhuiju-free
                     </a>{" "}
-                    精选索引 · 配套站点{" "}
+                    curated index · companion site{" "}
                     <a
                       href={meta.site}
                       target="_blank"
@@ -49,26 +49,26 @@ export default function Home() {
                   variant="outline"
                   className="border-zinc-800 bg-zinc-900/60 font-mono text-zinc-400"
                 >
-                  {meta.total} 个资源
+                  {meta.total} resources
                 </Badge>
                 <Badge
                   variant="outline"
                   className="border-zinc-800 bg-zinc-900/60 font-mono text-zinc-400"
                 >
-                  {Object.keys(meta.categoryCounts).length} 个分类
+                  {Object.keys(meta.categoryCounts).length} categories
                 </Badge>
                 <Badge
                   variant="outline"
                   className="border-zinc-800 bg-zinc-900/60 font-mono text-zinc-400"
                 >
                   <Database className="size-3" />
-                  清单更新 {meta.resourcesUpdatedAt}
+                  List updated {meta.resourcesUpdatedAt}
                 </Badge>
                 <Badge
                   variant="outline"
                   className="border-zinc-800 bg-zinc-900/60 font-mono text-zinc-400"
                 >
-                  可用性检测 {availabilityDate}
+                  Availability checked {availabilityDate}
                 </Badge>
                 <Badge
                   variant="outline"
@@ -90,7 +90,7 @@ export default function Home() {
                 rel="noopener noreferrer"
               >
                 <Github className="size-4" />
-                GitHub 仓库
+                GitHub repo
                 <ExternalLink className="size-3" />
               </a>
             </Button>
@@ -107,10 +107,13 @@ export default function Home() {
       <footer className="mt-auto border-t border-zinc-800/80 bg-zinc-950 pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6">
           <p className="text-xs leading-relaxed text-zinc-600">
-            本页面是 GitHub 仓库{" "}
-            <span className="font-mono text-zinc-500">{meta.repo}</span> 的数据快照（取自
-            2026-10-14）。资源名称、简介与维护者备注均保留原始中文；可用性状态来自项目每日自动检测（
-            {availabilityDate} 运行）。所列站点均为第三方资源，本面板仅索引元数据、不托管任何内容。多数条目被维护者标记为高版权风险，实际可用性因地区与网络环境而异。
+            This page is a data snapshot of the GitHub repository{" "}
+            <span className="font-mono text-zinc-500">{meta.repo}</span> (taken 2026-10-14),
+            with all descriptions translated into English from the original Chinese. Availability
+            statuses come from the project's daily automated check (run on {availabilityDate}).
+            All listed sites are third-party resources; this panel only indexes metadata and
+            hosts no content. Most entries are flagged by the maintainer as high copyright risk,
+            and actual availability varies by region and network.
           </p>
         </div>
       </footer>

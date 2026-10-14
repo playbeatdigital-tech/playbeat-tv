@@ -12,11 +12,11 @@ import {
 } from "@/components/collection/status";
 import {
   buildSafePlaylist,
-  CN_CONTENT_TAGS,
+  CN_CONTENT_TAGS_EN,
   type PlaylistGroupKey,
 } from "@/lib/playlist";
 import {
-  categoryZh,
+  categoryLabel,
   hostOf,
   type ResourceItem,
 } from "@/lib/collection";
@@ -56,9 +56,11 @@ function PlaylistRow({
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      toast({ description: "复制失败，请手动复制链接" });
+      toast({ description: "Copy failed — please copy the link manually" });
     }
   }
+
+  const displayName = item.en?.name ?? item.name;
 
   return (
     <li
@@ -79,7 +81,7 @@ function PlaylistRow({
             rel="noopener noreferrer nofollow"
             className="truncate text-sm font-medium text-zinc-100 hover:text-amber-400"
           >
-            {item.name}
+            {displayName}
           </a>
           <span className="truncate font-mono text-[11px] text-zinc-600">
             {hostOf(item.url)}
@@ -88,7 +90,7 @@ function PlaylistRow({
             variant="secondary"
             className="border-zinc-700/60 bg-zinc-800/80 text-[10px] text-zinc-400"
           >
-            {categoryZh(item.category)}
+            {categoryLabel(item.category)}
           </Badge>
           {declared && (
             <Badge
@@ -96,11 +98,13 @@ function PlaylistRow({
               className="border-emerald-500/30 bg-emerald-500/10 text-[10px] text-emerald-300"
             >
               <ShieldCheck className="size-3" />
-              仓库标注为{item.risks.copyright === "low" ? "低" : "中"}风险
+              Repo-declared {item.risks.copyright === "low" ? "low" : "medium"} risk
             </Badge>
           )}
         </div>
-        <p className="mt-0.5 truncate text-xs text-zinc-500">{item.summaryShort || item.summary}</p>
+        <p className="mt-0.5 truncate text-xs text-zinc-500">
+          {item.en?.summaryShort || item.en?.summary || item.summaryShort || item.summary}
+        </p>
       </div>
 
       <div className="hidden shrink-0 items-center gap-1.5 md:flex">
@@ -118,8 +122,8 @@ function PlaylistRow({
           size="icon"
           onClick={copyLink}
           className="size-8 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-200"
-          aria-label={`复制 ${item.name} 链接`}
-          title="复制链接"
+          aria-label={`Copy ${displayName} link`}
+          title="Copy link"
         >
           {copied ? <Check className="size-3.5 text-emerald-400" /> : <Copy className="size-3.5" />}
         </Button>
@@ -131,7 +135,7 @@ function PlaylistRow({
         >
           <a href={item.url} target="_blank" rel="noopener noreferrer nofollow">
             <ExternalLink className="size-3.5" />
-            打开
+            Open
           </a>
         </Button>
       </div>
@@ -153,34 +157,37 @@ export function PlaylistView() {
   async function copyAllLinks() {
     const links = orderedGroups
       .flatMap((g) => g.items)
-      .map((i, n) => `${String(n + 1).padStart(2, "0")} ${i.name} — ${i.url}`)
+      .map((i, n) => `${String(n + 1).padStart(2, "0")} ${i.en?.name ?? i.name} — ${i.url}`)
       .join("\n");
     try {
       await navigator.clipboard.writeText(links);
-      toast({ description: `已复制 ${playlist.total} 条链接` });
+      toast({ description: `Copied ${playlist.total} links` });
     } catch {
-      toast({ description: "复制失败，请手动复制" });
+      toast({ description: "Copy failed — please copy manually" });
     }
   }
 
   return (
-    <section className="flex-1" aria-label="安全播放列表">
+    <section className="flex-1" aria-label="Safe playlist">
       {/* Criteria banner */}
       <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-4">
         <div className="flex items-start gap-3">
           <Info className="mt-0.5 size-4 shrink-0 text-amber-400" />
           <div className="space-y-1.5 text-sm leading-relaxed text-zinc-300">
-            <p className="font-medium text-amber-300">安全播放列表的收录标准</p>
+            <p className="font-medium text-amber-300">Safe playlist inclusion criteria</p>
             <p className="text-zinc-400">
-              重要说明：本仓库内
-              <span className="text-rose-300">所有在线影视站均被维护者自身标记为高版权风险</span>
-              ，因此一律不收录。以下列表仅包含公开合法的 IPTV
-              直播源与开源播放器 / 工具，并已按你的要求
-              <span className="text-zinc-200">排除中文剧集类内容</span>
-              （标签含：{CN_CONTENT_TAGS.join("、")}）与字幕站。
+              Important: <span className="text-rose-300">every online streaming site in this
+              repository is flagged as high copyright risk by the maintainer itself</span>, so
+              none of them are included. The list below contains only publicly legal IPTV
+              sources and open-source players / tools, and — per your request — excludes
+              Chinese drama / series content (tags: {CN_CONTENT_TAGS_EN.join(", ")}) as well as
+              subtitle sites.
             </p>
             <p className="text-xs text-zinc-500">
-              「无版权风险」依据的是仓库维护者的自报标注，不构成法律保证；聚合壳应用与播放器本身不托管内容，播放内容取决于用户配置的来源，请遵守所在地法律法规。
+              "No copyright risk" reflects the repository's own self-declared labels and is not
+              a legal guarantee. Aggregator apps and players host no content themselves — what
+              you can play depends on the sources you configure. Please follow the laws of your
+              region.
             </p>
           </div>
         </div>
@@ -194,25 +201,25 @@ export function PlaylistView() {
             className="border-zinc-800 bg-zinc-900/60 font-mono text-zinc-400"
           >
             <ListMusic className="size-3" />
-            {playlist.total} 项
+            {playlist.total} items
           </Badge>
           <Badge
             variant="outline"
             className="border-emerald-500/30 bg-emerald-500/10 font-mono text-emerald-300"
           >
-            {playlist.declaredCount} 项已标注低/中风险
+            {playlist.declaredCount} declared low/medium risk
           </Badge>
           <Badge
             variant="outline"
             className="border-zinc-800 bg-zinc-900/60 font-mono text-zinc-400"
           >
-            {playlist.toolsCount} 项开源工具（风险未申报）
+            {playlist.toolsCount} open-source tools (risk undeclared)
           </Badge>
           <Badge
             variant="outline"
             className="border-zinc-800 bg-zinc-900/60 font-mono text-zinc-400"
           >
-            已排除 {CN_CONTENT_TAGS.length} 类中文内容标签
+            Excludes {CN_CONTENT_TAGS_EN.length} Chinese-content tags
           </Badge>
         </div>
         <div className="flex items-center gap-4">
@@ -220,9 +227,9 @@ export function PlaylistView() {
             <Switch
               checked={includeTools}
               onCheckedChange={setIncludeTools}
-              aria-label="包含开源工具"
+              aria-label="Include open-source tools"
             />
-            包含开源工具（{playlist.toolsCount}）
+            Include open-source tools ({playlist.toolsCount})
           </label>
           <Button
             variant="outline"
@@ -232,7 +239,7 @@ export function PlaylistView() {
             className="h-8 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100"
           >
             <Copy className="size-3.5" />
-            复制全部链接
+            Copy all links
           </Button>
         </div>
       </div>
@@ -265,7 +272,8 @@ export function PlaylistView() {
         <div className="mt-10 flex flex-col items-center gap-3 rounded-xl border border-dashed border-zinc-800 py-14 text-center">
           <Trash2 className="size-10 text-zinc-700" />
           <p className="text-sm text-zinc-500">
-            当前条件下没有可收录的资源（已排除全部高版权风险与中文内容）。
+            No resources qualify under the current criteria (all high copyright risk and
+            Chinese content excluded).
           </p>
         </div>
       )}

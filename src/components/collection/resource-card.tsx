@@ -16,7 +16,7 @@ import {
   VerificationBadge,
 } from "@/components/collection/status";
 import {
-  categoryZh,
+  categoryLabel,
   formatResponseTime,
   hostOf,
   type ResourceItem,
@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 
 function ScoreDots({ value }: { value: number }) {
   return (
-    <span className="inline-flex items-center gap-[3px]" aria-label={`${value} 分（满分 5 分）`}>
+    <span className="inline-flex items-center gap-[3px]" aria-label={`${value} out of 5`}>
       {[1, 2, 3, 4, 5].map((i) => (
         <span
           key={i}
@@ -50,7 +50,7 @@ export function ResourceCard({
   const avStatus = item.availability?.status ?? "unchecked";
   const avMeta = AVAILABILITY_META[avStatus];
   const copyright = item.risks.copyright ?? "unknown";
-  const tags = item.tags.slice(0, 4);
+  const tags = (item.en?.tags ?? item.tags).slice(0, 4);
   const extraTags = item.tags.length - tags.length;
 
   return (
@@ -65,7 +65,7 @@ export function ResourceCard({
           <div className="min-w-0">
             <h3 className="flex items-center gap-1.5 truncate text-base font-semibold text-zinc-100">
               {item.featured && <FeaturedStar className="shrink-0" />}
-              <span className="truncate">{item.name}</span>
+              <span className="truncate">{item.en?.name ?? item.name}</span>
             </h3>
             <p className="mt-0.5 truncate font-mono text-xs text-zinc-500">
               {hostOf(item.url)}
@@ -81,7 +81,7 @@ export function ResourceCard({
             variant="secondary"
             className="border-zinc-700/60 bg-zinc-800/80 text-[11px] text-zinc-300"
           >
-            {categoryZh(item.category)}
+            {categoryLabel(item.category)}
           </Badge>
           {item.avgScore != null && (
             <span className="inline-flex items-center gap-1.5 text-[11px] text-zinc-400">
@@ -94,7 +94,7 @@ export function ResourceCard({
 
       <CardContent className="flex flex-1 flex-col gap-3 p-4 pt-0">
         <p className="line-clamp-2 text-sm leading-relaxed text-zinc-400">
-          {item.summaryShort || item.summary}
+          {item.en?.summaryShort || item.en?.summary || item.summaryShort || item.summary}
         </p>
 
         <div className="flex flex-wrap gap-1.5">
@@ -126,7 +126,7 @@ export function ResourceCard({
 
         {item.availability?.responseMs != null && (
           <p className="text-[11px] text-zinc-600">
-            响应 {formatResponseTime(item.availability.responseMs)} · 检测于{" "}
+            Response {formatResponseTime(item.availability.responseMs)} · Checked{" "}
             {item.availability.checkedAt?.slice(0, 10) ?? "—"}
           </p>
         )}
@@ -140,7 +140,7 @@ export function ResourceCard({
           onClick={() => onDetails(item)}
         >
           <Info className="size-3.5" />
-          详情
+          Details
         </Button>
         <Button
           variant="outline"
@@ -150,7 +150,7 @@ export function ResourceCard({
         >
           <a href={item.url} target="_blank" rel="noopener noreferrer nofollow">
             <ExternalLink className="size-3.5" />
-            访问
+            Visit
           </a>
         </Button>
       </CardFooter>
