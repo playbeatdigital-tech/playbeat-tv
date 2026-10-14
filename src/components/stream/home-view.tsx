@@ -532,7 +532,8 @@ function cardMeta(channel: StreamChannel, categories: CategoryMeta[]) {
   return { first, rest };
 }
 
-const PosterCard = memo(function PosterCard({
+/* Exported for reuse by the dedicated category discovery pages. */
+export const PosterCard = memo(function PosterCard({
   channel,
   hue,
   categories,

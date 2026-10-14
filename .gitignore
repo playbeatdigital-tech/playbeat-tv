@@ -52,3 +52,8 @@ prompt
 server.log
 # Skills directory
 /skills/
+# analysis scratch: third-party repo clone (has its own git history), tool artifacts, verification screenshots
+/repo_analysis/
+/tool-results/
+/scripts/iptv_cache/
+/scripts/*.png

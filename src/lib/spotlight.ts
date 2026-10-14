@@ -114,10 +114,16 @@ function rank(c: StreamChannel): number {
   return (c.srcs[0]?.q ?? 0) * 10 + c.srcs.length;
 }
 
-function topByCategory(cat: string, n: number): StreamChannel[] {
+function topByCategory(cat: string, n: number, boost?: RegExp): StreamChannel[] {
+  const boosted = (c: StreamChannel) => (boost ? Number(boost.test(c.name)) : 0);
   return catalog.channels
     .filter((c) => c.cats.includes(cat) && c.logo && (c.srcs[0]?.q ?? 0) >= 720)
-    .sort((a, b) => rank(b) - rank(a) || a.name.localeCompare(b.name))
+    .sort(
+      (a, b) =>
+        boosted(b) - boosted(a) ||
+        rank(b) - rank(a) ||
+        a.name.localeCompare(b.name)
+    )
     .slice(0, n);
 }
 
@@ -137,6 +143,24 @@ export function homeRows(): HomeRow[] {
       variant: "poster",
       hue: "from-violet-950 via-[#14102b] to-[#0b0819]",
       channels: byIds(TRENDING_IDS),
+    },
+    {
+      id: "anime",
+      title: "Anime & Animation",
+      subtitle: "Naruto, Animax, RetroCrush — drawn worlds on air 24/7.",
+      variant: "poster",
+      hue: "from-emerald-950 via-[#0b1f18] to-[#0b0819]",
+      category: "animation",
+      channels: topByCategory("animation", 18, /anime|animax|retrocrush|hidive/i),
+    },
+    {
+      id: "series",
+      title: "Series & Dramas",
+      subtitle: "Serialized stories, episode after episode — no subscription.",
+      variant: "poster",
+      hue: "from-pink-950 via-[#2b0f24] to-[#0b0819]",
+      category: "series",
+      channels: topByCategory("series", 18),
     },
     {
       id: "news",
@@ -167,8 +191,8 @@ export function homeRows(): HomeRow[] {
     },
     {
       id: "movies",
-      title: "Movies & Series",
-      subtitle: "Free-to-air cinema and serialized stories.",
+      title: "Movies & Cinema",
+      subtitle: "Free-to-air cinema running around the clock.",
       variant: "wide",
       hue: "from-rose-950 via-[#241028] to-[#0b0819]",
       category: "movies",
@@ -176,7 +200,7 @@ export function homeRows(): HomeRow[] {
     },
     {
       id: "kids",
-      title: "Kids & Animation",
+      title: "Kids & Family",
       subtitle: "Cartoons and family-friendly fun, all day.",
       variant: "wide",
       hue: "from-purple-900 via-[#1c1233] to-[#0b0819]",

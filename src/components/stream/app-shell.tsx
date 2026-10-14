@@ -21,6 +21,7 @@ import {
 import { PlayerDialog } from "@/components/stream/player-dialog";
 import { HomeView } from "@/components/stream/home-view";
 import { StreamApp, type StreamAppProps } from "@/components/stream/stream-app";
+import { CategoryView } from "@/components/stream/category-view";
 import { cn } from "@/lib/utils";
 import {
   getFavoritesServerSnapshot,
@@ -35,7 +36,7 @@ import {
 } from "@/lib/stream";
 import type { HeroItem, HomeRow } from "@/lib/spotlight";
 
-type View = "home" | "tv" | "collection" | "about";
+type View = "home" | "tv" | "category" | "collection" | "about";
 
 const NAV: { key: View; label: string }[] = [
   { key: "home", label: "Home" },
@@ -92,6 +93,8 @@ export function AppShell({
   const [view, setView] = useState<View>("home");
   const [menuOpen, setMenuOpen] = useState(false);
   const [tvPreset, setTvPreset] = useState<TvPreset>(DEFAULT_PRESET);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const lastNonCategoryView = useRef<View>("home");
 
   /* ---------- favorites ---------- */
   const favs = useSyncExternalStore(
@@ -126,7 +129,7 @@ export function AppShell({
     }
   }, []);
 
-  /* ---------- deep links (#watch=<id>) from any view ---------- */
+  /* ---------- deep links (#watch=<id> / #category=<id>) from any view ---------- */
   const catalogRef = useRef<StreamCatalog | null>(null);
   const ensureCatalog = useCallback(async (): Promise<StreamCatalog | null> => {
     if (catalogRef.current) return catalogRef.current;
@@ -141,18 +144,11 @@ export function AppShell({
     }
   }, []);
 
-  useEffect(() => {
-    const openFromHash = async () => {
-      const m = /^#watch=(.+)$/.exec(window.location.hash);
-      if (!m) return;
-      const catalog = await ensureCatalog();
-      const ch = catalog?.channels.find((c) => c.id === m[1]);
-      if (ch) play(ch);
-    };
-    void openFromHash();
-    window.addEventListener("hashchange", openFromHash);
-    return () => window.removeEventListener("hashchange", openFromHash);
-  }, [play, ensureCatalog]);
+  const validCategories = useMemo(
+    () => new Set(categories.map((c) => c.id)),
+    [categories]
+  );
+
 
   const categoryNames = useMemo(
     () => Object.fromEntries(categories.map((c) => [c.id, c.name])),
@@ -163,8 +159,59 @@ export function AppShell({
   const goView = useCallback((v: View) => {
     setView(v);
     setMenuOpen(false);
+    if (/^#category=/.test(window.location.hash)) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
     window.scrollTo(0, 0);
   }, []);
+
+  const openCategory = useCallback((catId: string, fromHash = false) => {
+    setActiveCategory(catId);
+    setView((v) => {
+      if (v !== "category") lastNonCategoryView.current = v;
+      return "category";
+    });
+    setMenuOpen(false);
+    if (!fromHash) {
+      window.history.pushState(null, "", `#category=${catId}`);
+    }
+    window.scrollTo(0, 0);
+  }, []);
+
+  /* deep links: #category=<id> (validated) and #watch=<id>, from any view */
+  useEffect(() => {
+    const handleHash = async () => {
+      const cat = /^#category=([\w-]+)$/.exec(window.location.hash);
+      if (cat) {
+        if (validCategories.has(cat[1])) openCategory(cat[1], true);
+        return;
+      }
+      const m = /^#watch=(.+)$/.exec(window.location.hash);
+      if (!m) return;
+      const catalog = await ensureCatalog();
+      const ch = catalog?.channels.find((c) => c.id === m[1]);
+      if (ch) play(ch);
+    };
+    void handleHash();
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
+  }, [play, ensureCatalog, openCategory, validCategories]);
+
+  /* keep the document title in sync with the active view/category */
+  useEffect(() => {
+    if (view === "category" && activeCategory) {
+      const name = categoryNames[activeCategory] ?? activeCategory;
+      document.title = `${name} — Live TV · OpenStream`;
+    } else if (view === "tv") {
+      document.title = "Live TV · OpenStream";
+    } else if (view === "collection") {
+      document.title = "Collection · OpenStream";
+    } else if (view === "about") {
+      document.title = "About & Content Policy · OpenStream";
+    } else {
+      document.title = "OpenStream — Free Live TV, No Login";
+    }
+  }, [view, activeCategory, categoryNames]);
 
   const browseTv = useCallback((preset: Partial<TvPreset>) => {
     setTvPreset((prev) => ({
@@ -175,6 +222,9 @@ export function AppShell({
     }));
     setView("tv");
     setMenuOpen(false);
+    if (/^#category=/.test(window.location.hash)) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
     window.scrollTo(0, 0);
   }, []);
 
@@ -316,9 +366,24 @@ export function AppShell({
             onPlay={play}
             isFavorite={isFavorite}
             onToggleFavorite={onToggleFavorite}
-            onBrowseCategory={(cat) => browseTv({ category: cat })}
+            onBrowseCategory={openCategory}
             onBrowseAll={() => browseTv({})}
             onAbout={() => goView("about")}
+          />
+        )}
+        {view === "category" && activeCategory && (
+          <CategoryView
+            key={activeCategory}
+            categoryId={activeCategory}
+            categories={categories}
+            catCounts={catCounts}
+            getCatalog={ensureCatalog}
+            onPlay={play}
+            isFavorite={isFavorite}
+            onToggleFavorite={onToggleFavorite}
+            onOpenCategory={openCategory}
+            onBack={() => goView(lastNonCategoryView.current)}
+            onOpenInLiveTv={(cat) => browseTv({ category: cat })}
           />
         )}
         {view === "tv" && (
@@ -376,7 +441,7 @@ export function AppShell({
               {topFooterCategories(categories, catCounts).map((cat) => (
                 <li key={cat.id}>
                   <button
-                    onClick={() => browseTv({ category: cat.id })}
+                    onClick={() => openCategory(cat.id)}
                     className="text-xs text-zinc-400 transition-colors hover:text-violet-300"
                   >
                     {cat.name}
