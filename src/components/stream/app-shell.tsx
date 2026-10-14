@@ -9,19 +9,32 @@ import {
   useSyncExternalStore,
 } from "react";
 import {
+  ArrowUpRight,
   Bookmark,
   Clapperboard,
+  Compass,
+  Database,
+  Film,
   Github,
+  Heart,
+  History,
   Info,
   Menu,
+  Newspaper,
+  PanelRight,
+  Play,
+  Radio,
   Search,
-  Sparkles,
+  Trophy,
+  Tv,
   X,
 } from "lucide-react";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { PlayerDialog } from "@/components/stream/player-dialog";
 import { HomeView } from "@/components/stream/home-view";
 import { StreamApp, type StreamAppProps } from "@/components/stream/stream-app";
 import { CategoryView } from "@/components/stream/category-view";
+import { ChannelsPanel } from "@/components/stream/channels-panel";
 import { cn } from "@/lib/utils";
 import {
   getFavoritesServerSnapshot,
@@ -38,16 +51,10 @@ import type { HeroItem, HomeRow } from "@/lib/spotlight";
 
 type View = "home" | "tv" | "category" | "collection" | "about";
 
-const NAV: { key: View; label: string }[] = [
-  { key: "home", label: "Home" },
-  { key: "tv", label: "Live TV" },
-  { key: "collection", label: "Collection" },
-  { key: "about", label: "About" },
-];
-
 export interface TvPreset {
   category: string;
   myList: boolean;
+  recents: boolean;
   focusSearch: boolean;
   navKey: number;
 }
@@ -55,17 +62,24 @@ export interface TvPreset {
 const DEFAULT_PRESET: TvPreset = {
   category: "all",
   myList: false,
+  recents: false,
   focusSearch: false,
   navKey: 0,
 };
 
+/* the two editorial categories promoted into the top nav, à la reference */
+const TOP_NAV_CATS = ["movies", "series", "sports", "news"];
+
 /**
- * Global application chrome: sticky glass header, Home / Live TV / Collection /
- * About views, shared HLS player and the site footer. Single route, no login.
+ * Playbeat TV storefront chrome: sticky navbar, left browse rail,
+ * right "All channels" rail, Home / Live TV / category / Collection /
+ * About views, shared HLS player and the site footer. Single route,
+ * no login.
  */
 export function AppShell({
   hero,
   rows,
+  popular,
   categories,
   countries,
   catCounts,
@@ -79,6 +93,7 @@ export function AppShell({
 }: {
   hero: HeroItem[];
   rows: HomeRow[];
+  popular: HomeRow[];
   categories: CategoryMeta[];
   countries: CountryMeta[];
   catCounts: Record<string, number>;
@@ -91,7 +106,8 @@ export function AppShell({
   about: React.ReactNode;
 }) {
   const [view, setView] = useState<View>("home");
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
+  const [channelsOpen, setChannelsOpen] = useState(false);
   const [tvPreset, setTvPreset] = useState<TvPreset>(DEFAULT_PRESET);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const lastNonCategoryView = useRef<View>("home");
@@ -149,7 +165,6 @@ export function AppShell({
     [categories]
   );
 
-
   const categoryNames = useMemo(
     () => Object.fromEntries(categories.map((c) => [c.id, c.name])),
     [categories]
@@ -158,7 +173,8 @@ export function AppShell({
   /* ---------- navigation helpers ---------- */
   const goView = useCallback((v: View) => {
     setView(v);
-    setMenuOpen(false);
+    setNavOpen(false);
+    setChannelsOpen(false);
     if (/^#category=/.test(window.location.hash)) {
       window.history.replaceState(null, "", window.location.pathname + window.location.search);
     }
@@ -171,7 +187,8 @@ export function AppShell({
       if (v !== "category") lastNonCategoryView.current = v;
       return "category";
     });
-    setMenuOpen(false);
+    setNavOpen(false);
+    setChannelsOpen(false);
     if (!fromHash) {
       window.history.pushState(null, "", `#category=${catId}`);
     }
@@ -201,15 +218,15 @@ export function AppShell({
   useEffect(() => {
     if (view === "category" && activeCategory) {
       const name = categoryNames[activeCategory] ?? activeCategory;
-      document.title = `${name} — Live TV · OpenStream`;
+      document.title = `${name} — Playbeat TV`;
     } else if (view === "tv") {
-      document.title = "Live TV · OpenStream";
+      document.title = "Live TV — Playbeat TV";
     } else if (view === "collection") {
-      document.title = "Collection · OpenStream";
+      document.title = "Collection — Playbeat TV";
     } else if (view === "about") {
-      document.title = "About & Content Policy · OpenStream";
+      document.title = "About & Content Policy — Playbeat TV";
     } else {
-      document.title = "OpenStream — Free Live TV, No Login";
+      document.title = "Playbeat TV — Free Live TV & Streaming, No Login";
     }
   }, [view, activeCategory, categoryNames]);
 
@@ -217,11 +234,13 @@ export function AppShell({
     setTvPreset((prev) => ({
       category: preset.category ?? "all",
       myList: preset.myList ?? false,
+      recents: preset.recents ?? false,
       focusSearch: preset.focusSearch ?? false,
       navKey: prev.navKey + 1,
     }));
     setView("tv");
-    setMenuOpen(false);
+    setNavOpen(false);
+    setChannelsOpen(false);
     if (/^#category=/.test(window.location.hash)) {
       window.history.replaceState(null, "", window.location.pathname + window.location.search);
     }
@@ -238,198 +257,411 @@ export function AppShell({
     onPlay: play,
     initialCategory: tvPreset.category,
     initialMyList: tvPreset.myList,
+    initialRecents: tvPreset.recents,
     searchFocusKey: tvPreset.focusSearch ? tvPreset.navKey : 0,
   };
 
+  const catActive = (id: string) => view === "category" && activeCategory === id;
+
+  /* ---------- sidebar model (shared by desktop rail + mobile sheet) ---------- */
+  const mainNav: {
+    key: string;
+    label: string;
+    icon: React.ReactNode;
+    active: boolean;
+    onSelect: () => void;
+  }[] = [
+    {
+      key: "browse",
+      label: "Browse",
+      icon: <Compass className="size-4" />,
+      active: view === "home",
+      onSelect: () => goView("home"),
+    },
+    {
+      key: "tv",
+      label: "Live TV",
+      icon: <Tv className="size-4" />,
+      active: view === "tv",
+      onSelect: () => browseTv({}),
+    },
+    ...TOP_NAV_CATS.map((cat) => ({
+      key: `cat-${cat}`,
+      label: categoryNames[cat] ?? cat,
+      icon:
+        cat === "movies" ? (
+          <Clapperboard className="size-4" />
+        ) : cat === "series" ? (
+          <Film className="size-4" />
+        ) : cat === "sports" ? (
+          <Trophy className="size-4" />
+        ) : (
+          <Newspaper className="size-4" />
+        ),
+      active: catActive(cat),
+      onSelect: () => openCategory(cat),
+    })),
+  ];
+
+  const secondNav: {
+    key: string;
+    label: string;
+    icon: React.ReactNode;
+    badge?: number;
+    active: boolean;
+    onSelect: () => void;
+  }[] = [
+    {
+      key: "mylist",
+      label: "My List",
+      icon: <Heart className="size-4" />,
+      badge: favs.length,
+      active: false,
+      onSelect: () => browseTv({ myList: true }),
+    },
+    {
+      key: "recents",
+      label: "Recently watched",
+      icon: <History className="size-4" />,
+      active: false,
+      onSelect: () => browseTv({ recents: true }),
+    },
+    {
+      key: "collection",
+      label: "Collection",
+      icon: <Database className="size-4" />,
+      active: view === "collection",
+      onSelect: () => goView("collection"),
+    },
+    {
+      key: "about",
+      label: "About & policy",
+      icon: <Info className="size-4" />,
+      active: view === "about",
+      onSelect: () => goView("about"),
+    },
+  ];
+
+  const sidebarBrandCard = (
+    <div className="rounded-2xl border border-amber-400/20 bg-gradient-to-b from-amber-400/[0.08] to-transparent p-4">
+      <p className="font-mono text-[9px] font-semibold uppercase tracking-[0.24em] text-zinc-500">
+        Your front-row seat
+      </p>
+      <p className="mt-1.5 text-xl font-extrabold tracking-tight">
+        <span className="bg-gradient-to-r from-amber-300 to-yellow-500 bg-clip-text text-transparent">
+          PLAYBEAT
+        </span>
+      </p>
+      <p className="text-[11px] font-medium text-zinc-400">Free experience</p>
+      <ul className="mt-3 space-y-1.5 text-[11px] text-zinc-400">
+        <li className="flex items-center gap-1.5">
+          <ArrowUpRight className="size-3 text-amber-400" />
+          <span className="font-semibold text-zinc-200">{total.toLocaleString()}</span>
+          live channels
+        </li>
+        <li className="flex items-center gap-1.5">
+          <ArrowUpRight className="size-3 text-amber-400" />
+          <span className="font-semibold text-zinc-200">{countriesCount}</span>
+          countries
+        </li>
+        <li className="flex items-center gap-1.5">
+          <ArrowUpRight className="size-3 text-amber-400" />
+          <span className="font-semibold text-zinc-200">{categories.length}</span>
+          categories
+        </li>
+        <li className="flex items-center gap-1.5">
+          <ArrowUpRight className="size-3 text-amber-400" />
+          Free-to-air worldwide
+        </li>
+      </ul>
+      <button
+        onClick={() => browseTv({})}
+        className="mt-4 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-amber-300 to-yellow-400 text-[13px] font-bold text-zinc-950 shadow-lg shadow-amber-500/20 transition-all hover:brightness-110"
+      >
+        Explore the lineup
+        <ArrowUpRight className="size-3.5" />
+      </button>
+    </div>
+  );
+
+  const sidebarNav = (
+    <nav aria-label="Storefront" className="flex h-full min-h-0 flex-col gap-6 overflow-y-auto px-3 py-5 scrollbar-slim">
+      <div className="space-y-1">
+        {mainNav.map((item) => (
+          <button
+            key={item.key}
+            onClick={item.onSelect}
+            aria-current={item.active ? "page" : undefined}
+            className={cn(
+              "flex w-full items-center gap-3 rounded-xl border px-3.5 py-2.5 text-[13px] font-medium transition-colors",
+              item.active
+                ? "border-amber-400/30 bg-amber-400/10 text-amber-300"
+                : "border-transparent text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
+            )}
+          >
+            {item.icon}
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-1">
+        {secondNav.map((item) => (
+          <button
+            key={item.key}
+            onClick={item.onSelect}
+            aria-current={item.active ? "page" : undefined}
+            className={cn(
+              "flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-[13px] font-medium transition-colors",
+              item.active
+                ? "bg-white/10 text-white"
+                : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
+            )}
+          >
+            {item.icon}
+            {item.label}
+            {typeof item.badge === "number" && item.badge > 0 && (
+              <span className="ml-auto rounded-full bg-amber-400/15 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-amber-300">
+                {item.badge}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-auto pt-2">{sidebarBrandCard}</div>
+    </nav>
+  );
+
   return (
-    <div className="flex min-h-screen flex-col bg-[#05050d] text-zinc-100">
-      {/* ---------- header ---------- */}
-      <header className="sticky top-0 z-50 border-b border-white/5 bg-[#05050d]/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-4 px-4 sm:px-6">
+    <div className="flex min-h-screen flex-col bg-[#07070f] text-zinc-100">
+      {/* ============================ NAVBAR ============================ */}
+      <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0a0a15]/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 w-full max-w-[1600px] items-center gap-3 px-3 sm:gap-4 sm:px-5">
           {/* logo */}
           <button
             onClick={() => goView("home")}
-            className="flex shrink-0 items-center gap-2"
-            aria-label="OpenStream home"
+            className="flex shrink-0 items-center gap-2.5"
+            aria-label="Playbeat TV home"
           >
-            <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600 shadow-lg shadow-violet-900/50">
-              <Clapperboard className="size-4 text-white" />
+            <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-amber-300 to-yellow-500 shadow-lg shadow-amber-500/25">
+              <Play className="size-4 fill-[#0a0a15] text-[#0a0a15]" />
             </span>
-            <span className="text-lg font-bold tracking-tight">
-              Open
-              <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-                Stream
+            <span className="hidden flex-col leading-none sm:flex">
+              <span className="text-[15px] font-extrabold tracking-tight text-white">
+                PLAYBEAT{" "}
+                <span className="bg-gradient-to-r from-amber-300 to-yellow-500 bg-clip-text text-transparent">
+                  TV
+                </span>
+              </span>
+              <span className="mt-0.5 text-[9px] font-medium uppercase tracking-[0.22em] text-zinc-500">
+                Free live streaming
               </span>
             </span>
-            <Sparkles className="size-3.5 text-violet-400" />
           </button>
 
-          {/* desktop nav */}
-          <nav className="ml-6 hidden items-center gap-1 md:flex" aria-label="Primary">
-            {NAV.map((item) => (
+          {/* search pill */}
+          <button
+            onClick={() => browseTv({ focusSearch: true })}
+            className="ml-1 hidden h-10 flex-1 items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.04] px-4 text-left text-sm text-zinc-500 transition-colors hover:border-amber-400/30 hover:text-zinc-400 md:flex lg:max-w-md"
+            aria-label="Search channels, movies, series"
+          >
+            <Search className="size-4 shrink-0" />
+            Search channels, movies, series…
+          </button>
+
+          <div className="flex-1 md:hidden" />
+
+          {/* top nav pills */}
+          <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
+            <button
+              onClick={() => goView("home")}
+              aria-current={view === "home" ? "page" : undefined}
+              className={cn(
+                "rounded-full px-3.5 py-2 text-[13px] font-semibold transition-colors",
+                view === "home"
+                  ? "bg-amber-400 text-zinc-950"
+                  : "text-zinc-400 hover:text-white"
+              )}
+            >
+              Home
+            </button>
+            <button
+              onClick={() => browseTv({})}
+              aria-current={view === "tv" ? "page" : undefined}
+              className={cn(
+                "rounded-full px-3.5 py-2 text-[13px] font-semibold transition-colors",
+                view === "tv"
+                  ? "bg-amber-400 text-zinc-950"
+                  : "text-zinc-400 hover:text-white"
+              )}
+            >
+              Live TV
+            </button>
+            {TOP_NAV_CATS.map((cat) => (
               <button
-                key={item.key}
-                onClick={() => (item.key === "tv" ? browseTv({}) : goView(item.key))}
-                aria-current={view === item.key ? "page" : undefined}
+                key={cat}
+                onClick={() => openCategory(cat)}
+                aria-current={catActive(cat) ? "page" : undefined}
                 className={cn(
-                  "relative rounded-md px-3 py-2 text-sm transition-colors",
-                  view === item.key
-                    ? "font-semibold text-white"
-                    : "text-zinc-400 hover:text-zinc-100"
+                  "rounded-full px-3.5 py-2 text-[13px] font-medium transition-colors",
+                  catActive(cat)
+                    ? "bg-amber-400 text-zinc-950"
+                    : "text-zinc-400 hover:text-white"
                 )}
               >
-                {item.label}
-                {view === item.key && (
-                  <span className="absolute inset-x-3 -bottom-[9px] h-0.5 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500" />
-                )}
+                {categoryNames[cat] ?? cat}
               </button>
             ))}
           </nav>
 
-          <div className="flex-1" />
+          <div className="hidden flex-1 lg:block" />
 
           {/* right actions */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <button
-              onClick={() => browseTv({ focusSearch: true })}
-              aria-label="Search channels"
-              className="grid size-9 place-items-center rounded-full text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+              onClick={() => setChannelsOpen(true)}
+              aria-label="Open all channels panel"
+              className="grid size-9 place-items-center rounded-full text-zinc-400 transition-colors hover:bg-white/5 hover:text-white xl:hidden"
             >
-              <Search className="size-4.5" />
+              <PanelRight className="size-4.5" />
             </button>
             <button
               onClick={() => browseTv({ myList: true })}
               aria-label={`My List, ${favs.length} channels`}
-              className="relative grid size-9 place-items-center rounded-full text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+              className="flex size-9 items-center justify-center rounded-full text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
             >
-              <Bookmark className="size-4.5" />
-              {favs.length > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 grid min-w-4 place-items-center rounded-full bg-violet-600 px-1 text-[9px] font-bold text-white">
-                  {favs.length}
-                </span>
-              )}
+              <span className="relative">
+                <Bookmark className="size-4.5" />
+                {favs.length > 0 && (
+                  <span className="absolute -right-1.5 -top-1.5 grid min-w-4 place-items-center rounded-full bg-amber-400 px-1 text-[9px] font-bold text-zinc-950">
+                    {favs.length}
+                  </span>
+                )}
+              </span>
             </button>
             <a
-              href={sourceUrl}
+              href={repoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="iptv-org on GitHub"
+              aria-label="Playbeat TV on GitHub"
               className="hidden size-9 place-items-center rounded-full text-zinc-400 transition-colors hover:bg-white/5 hover:text-white sm:grid"
             >
               <Github className="size-4.5" />
             </a>
             <button
-              onClick={() => setMenuOpen((v) => !v)}
-              aria-label={menuOpen ? "Close menu" : "Open menu"}
-              aria-expanded={menuOpen}
-              className="grid size-9 place-items-center rounded-full text-zinc-300 transition-colors hover:bg-white/5 md:hidden"
+              onClick={() => setNavOpen(true)}
+              aria-label={navOpen ? "Close menu" : "Open menu"}
+              aria-expanded={navOpen}
+              className="grid size-9 place-items-center rounded-full text-zinc-300 transition-colors hover:bg-white/5 lg:hidden"
             >
-              {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+              {navOpen ? <X className="size-5" /> : <Menu className="size-5" />}
             </button>
           </div>
         </div>
-
-        {/* mobile menu */}
-        {menuOpen && (
-          <nav
-            aria-label="Mobile"
-            className="border-t border-white/5 bg-[#05050d]/95 px-4 py-3 backdrop-blur-xl md:hidden"
-          >
-            {NAV.map((item) => (
-              <button
-                key={item.key}
-                onClick={() => (item.key === "tv" ? browseTv({}) : goView(item.key))}
-                className={cn(
-                  "block w-full rounded-lg px-3 py-2.5 text-left text-sm",
-                  view === item.key
-                    ? "bg-violet-500/15 font-semibold text-white"
-                    : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
-                )}
-              >
-                {item.label}
-              </button>
-            ))}
-          </nav>
-        )}
       </header>
 
-      {/* ---------- views ---------- */}
-      <main className="flex-1">
-        {view === "home" && (
-          <HomeView
-            hero={hero}
-            rows={rows}
+      {/* ============================ BODY ============================ */}
+      <div className="mx-auto flex w-full max-w-[1600px] flex-1">
+        {/* left rail */}
+        <aside
+          className="sticky top-16 hidden h-[calc(100vh-4rem)] w-60 shrink-0 border-r border-white/5 lg:block"
+          aria-label="Browse navigation"
+        >
+          {sidebarNav}
+        </aside>
+
+        {/* main column */}
+        <main className="min-w-0 flex-1">
+          {view === "home" && (
+            <HomeView
+              hero={hero}
+              rows={rows}
+              popular={popular}
+              categories={categories}
+              catCounts={catCounts}
+              total={total}
+              countriesCount={countriesCount}
+              onPlay={play}
+              isFavorite={isFavorite}
+              onToggleFavorite={onToggleFavorite}
+              onBrowseCategory={openCategory}
+              onBrowseAll={() => browseTv({})}
+              onAbout={() => goView("about")}
+            />
+          )}
+          {view === "category" && activeCategory && (
+            <CategoryView
+              key={activeCategory}
+              categoryId={activeCategory}
+              categories={categories}
+              catCounts={catCounts}
+              getCatalog={ensureCatalog}
+              onPlay={play}
+              isFavorite={isFavorite}
+              onToggleFavorite={onToggleFavorite}
+              onOpenCategory={openCategory}
+              onBack={() => goView(lastNonCategoryView.current)}
+              onOpenInLiveTv={(cat) => browseTv({ category: cat })}
+            />
+          )}
+          {view === "tv" && (
+            <div className="px-3 py-5 sm:px-5">
+              <StreamApp key={tvPreset.navKey} {...streamProps} />
+            </div>
+          )}
+          {view === "collection" && (
+            <div className="px-3 py-5 sm:px-5">{collection}</div>
+          )}
+          {view === "about" && (
+            <div className="px-3 py-6 sm:px-5">{about}</div>
+          )}
+        </main>
+
+        {/* right rail — All channels */}
+        <aside
+          className="sticky top-16 hidden h-[calc(100vh-4rem)] w-80 shrink-0 border-l border-white/5 xl:block"
+          aria-label="All channels"
+        >
+          <ChannelsPanel
             categories={categories}
             catCounts={catCounts}
             total={total}
-            countriesCount={countriesCount}
-            onPlay={play}
-            isFavorite={isFavorite}
-            onToggleFavorite={onToggleFavorite}
-            onBrowseCategory={openCategory}
-            onBrowseAll={() => browseTv({})}
-            onAbout={() => goView("about")}
-          />
-        )}
-        {view === "category" && activeCategory && (
-          <CategoryView
-            key={activeCategory}
-            categoryId={activeCategory}
-            categories={categories}
-            catCounts={catCounts}
             getCatalog={ensureCatalog}
             onPlay={play}
-            isFavorite={isFavorite}
-            onToggleFavorite={onToggleFavorite}
-            onOpenCategory={openCategory}
-            onBack={() => goView(lastNonCategoryView.current)}
-            onOpenInLiveTv={(cat) => browseTv({ category: cat })}
+            className="h-full"
           />
-        )}
-        {view === "tv" && (
-          <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
-            <StreamApp key={tvPreset.navKey} {...streamProps} />
-          </div>
-        )}
-        {view === "collection" && (
-          <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">{collection}</div>
-        )}
-        {view === "about" && (
-          <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6">{about}</div>
-        )}
-      </main>
+        </aside>
+      </div>
 
-      {/* ---------- footer ---------- */}
-      <footer className="mt-auto border-t border-white/5 bg-[#030309] pb-[env(safe-area-inset-bottom)]">
-        <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      {/* ============================ FOOTER ============================ */}
+      <footer className="mt-auto border-t border-white/5 bg-[#05050c] pb-[env(safe-area-inset-bottom)]">
+        <div className="mx-auto grid w-full max-w-[1600px] gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
             <div className="flex items-center gap-2">
-              <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-600">
-                <Clapperboard className="size-4 text-white" />
+              <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-amber-300 to-yellow-500">
+                <Play className="size-3.5 fill-[#0a0a15] text-[#0a0a15]" />
               </span>
-              <span className="text-lg font-bold">
-                Open
-                <span className="bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-                  Stream
+              <span className="text-lg font-extrabold tracking-tight">
+                PLAYBEAT{" "}
+                <span className="bg-gradient-to-r from-amber-300 to-yellow-500 bg-clip-text text-transparent">
+                  TV
                 </span>
               </span>
-              <Sparkles className="size-3.5 text-violet-400" />
             </div>
             <p className="mt-3 max-w-xs text-xs leading-relaxed text-zinc-500">
-              Nightfall-grade free live television. Curated public free-to-air
-              channels from the open-source iptv-org index — no account, no
-              tracking, no cost.
+              Turn up the moment. Free live television from the open-source
+              iptv-org index — no account, no tracking, no cost, no catch.
             </p>
             <div className="mt-4 flex flex-wrap gap-1.5">
-              <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-medium text-zinc-400">
-                No login
-              </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-medium text-zinc-400">
-                No tracking
-              </span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-medium text-zinc-400">
-                Open source
-              </span>
+              {["No login", "No tracking", "Open source"].map((t) => (
+                <span
+                  key={t}
+                  className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-medium text-zinc-400"
+                >
+                  {t}
+                </span>
+              ))}
             </div>
           </div>
 
@@ -438,20 +670,20 @@ export function AppShell({
               Discover
             </h3>
             <ul className="mt-4 space-y-2.5">
-              {topFooterCategories(categories, catCounts).map((cat) => (
-                <li key={cat.id}>
+              {TOP_NAV_CATS.map((cat) => (
+                <li key={cat}>
                   <button
-                    onClick={() => openCategory(cat.id)}
-                    className="text-xs text-zinc-400 transition-colors hover:text-violet-300"
+                    onClick={() => openCategory(cat)}
+                    className="text-xs text-zinc-400 transition-colors hover:text-amber-300"
                   >
-                    {cat.name}
+                    {categoryNames[cat] ?? cat}
                   </button>
                 </li>
               ))}
               <li>
                 <button
                   onClick={() => browseTv({})}
-                  className="text-xs font-medium text-violet-300 transition-colors hover:text-violet-200"
+                  className="text-xs font-medium text-amber-300 transition-colors hover:text-amber-200"
                 >
                   All channels →
                 </button>
@@ -464,22 +696,32 @@ export function AppShell({
               Platform
             </h3>
             <ul className="mt-4 space-y-2.5">
-              {NAV.map((item) => (
-                <li key={item.key}>
-                  <button
-                    onClick={() => (item.key === "tv" ? browseTv({}) : goView(item.key))}
-                    className="text-xs text-zinc-400 transition-colors hover:text-violet-300"
-                  >
-                    {item.key === "tv" ? "Browse Live TV" : item.label}
-                  </button>
-                </li>
-              ))}
+              <li>
+                <button onClick={() => goView("home")} className="text-xs text-zinc-400 transition-colors hover:text-amber-300">
+                  Browse
+                </button>
+              </li>
+              <li>
+                <button onClick={() => browseTv({})} className="text-xs text-zinc-400 transition-colors hover:text-amber-300">
+                  Live TV
+                </button>
+              </li>
+              <li>
+                <button onClick={() => goView("collection")} className="text-xs text-zinc-400 transition-colors hover:text-amber-300">
+                  Collection
+                </button>
+              </li>
+              <li>
+                <button onClick={() => goView("about")} className="text-xs text-zinc-400 transition-colors hover:text-amber-300">
+                  About &amp; policy
+                </button>
+              </li>
               <li>
                 <a
                   href={repoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-zinc-400 transition-colors hover:text-violet-300"
+                  className="inline-flex items-center gap-1.5 text-xs text-zinc-400 transition-colors hover:text-amber-300"
                 >
                   <Github className="size-3" /> Source repo
                 </a>
@@ -497,7 +739,7 @@ export function AppShell({
                   href={sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-zinc-400 transition-colors hover:text-violet-300"
+                  className="text-xs text-zinc-400 transition-colors hover:text-amber-300"
                 >
                   iptv-org — channel index
                 </a>
@@ -507,7 +749,7 @@ export function AppShell({
                   href="https://github.com/video-dev/hls.js"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-zinc-400 transition-colors hover:text-violet-300"
+                  className="text-xs text-zinc-400 transition-colors hover:text-amber-300"
                 >
                   hls.js — playback engine
                 </a>
@@ -515,7 +757,7 @@ export function AppShell({
               <li>
                 <button
                   onClick={() => goView("about")}
-                  className="inline-flex items-center gap-1.5 text-xs text-zinc-400 transition-colors hover:text-violet-300"
+                  className="inline-flex items-center gap-1.5 text-xs text-zinc-400 transition-colors hover:text-amber-300"
                 >
                   <Info className="size-3" /> Content policy
                 </button>
@@ -524,9 +766,9 @@ export function AppShell({
           </div>
         </div>
         <div className="border-t border-white/5">
-          <div className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-2 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <p className="text-[11px] leading-relaxed text-zinc-600">
-              © 2026 OpenStream · Hosts no media — a player &amp; directory for
+              © 2026 Playbeat TV · Hosts no media — a player &amp; directory for
               publicly available free-to-air streams. Not affiliated with
               broadcasters.
             </p>
@@ -538,7 +780,46 @@ export function AppShell({
         </div>
       </footer>
 
-      {/* ---------- shared player ---------- */}
+      {/* ============================ MOBILE SHEETS ============================ */}
+      <Sheet open={navOpen} onOpenChange={setNavOpen}>
+        <SheetContent
+          side="left"
+          className="w-72 border-white/10 bg-[#0a0a15] p-0 text-zinc-100"
+        >
+          <SheetTitle className="sr-only">Navigation</SheetTitle>
+          <div className="flex items-center gap-2.5 border-b border-white/5 px-4 py-4">
+            <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-amber-300 to-yellow-500">
+              <Play className="size-3.5 fill-[#0a0a15] text-[#0a0a15]" />
+            </span>
+            <span className="text-sm font-extrabold tracking-tight">
+              PLAYBEAT{" "}
+              <span className="bg-gradient-to-r from-amber-300 to-yellow-500 bg-clip-text text-transparent">
+                TV
+              </span>
+            </span>
+          </div>
+          {sidebarNav}
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={channelsOpen} onOpenChange={setChannelsOpen}>
+        <SheetContent
+          side="right"
+          className="w-[340px] border-white/10 bg-[#0a0a15] p-0 text-zinc-100 sm:w-[380px]"
+        >
+          <SheetTitle className="sr-only">All channels</SheetTitle>
+          <ChannelsPanel
+            categories={categories}
+            catCounts={catCounts}
+            total={total}
+            getCatalog={ensureCatalog}
+            onPlay={play}
+            className="h-full border-l-0"
+          />
+        </SheetContent>
+      </Sheet>
+
+      {/* ============================ SHARED PLAYER ============================ */}
       <PlayerDialog
         channel={playerChannel}
         open={playerOpen}
@@ -549,16 +830,4 @@ export function AppShell({
       />
     </div>
   );
-}
-
-/* ---------- helpers ---------- */
-
-function topFooterCategories(
-  categories: CategoryMeta[],
-  counts: Record<string, number>,
-  n = 6
-): CategoryMeta[] {
-  return [...categories]
-    .sort((a, b) => (counts[b.id] ?? 0) - (counts[a.id] ?? 0))
-    .slice(0, n);
 }

@@ -7,7 +7,7 @@ import {
   catalog,
   countByCategory,
 } from "@/lib/stream.server";
-import { heroItems, homeRows } from "@/lib/spotlight";
+import { heroItems, homeRows, popularPicks } from "@/lib/spotlight";
 import {
   CheckCircle2,
   Database,
@@ -23,6 +23,7 @@ export default function Home() {
     <AppShell
       hero={heroItems()}
       rows={homeRows()}
+      popular={popularPicks()}
       categories={catalog.categories}
       countries={catalog.countries}
       catCounts={countByCategory()}
@@ -92,16 +93,16 @@ function AboutSection({
     <section aria-label="About and content policy" className="mx-auto max-w-3xl space-y-6 pb-6">
       <div>
         <h2 className="flex items-center gap-2 text-lg font-bold text-zinc-100">
-          <ScrollText className="size-5 text-violet-400" />
-          About OpenStream
+          <ScrollText className="size-5 text-amber-400" />
+          About Playbeat TV
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-zinc-400">
-          OpenStream is a production transformation of the GitHub repository{" "}
+          Playbeat TV is a production transformation of the GitHub repository{" "}
           <a
             href={meta.repoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-violet-400/90 underline-offset-2 hover:underline"
+            className="text-amber-300/90 underline-offset-2 hover:underline"
           >
             laoma528/awesome-zhuiju-free
           </a>{" "}
@@ -113,7 +114,7 @@ function AboutSection({
             href={catalog.meta.sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-violet-400/90 underline-offset-2 hover:underline"
+            className="text-amber-300/90 underline-offset-2 hover:underline"
           >
             iptv-org
           </a>
@@ -186,7 +187,7 @@ function AboutSection({
             href="https://github.com/iptv-org/iptv/issues"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-violet-400/90 underline-offset-2 hover:underline"
+            className="text-amber-300/90 underline-offset-2 hover:underline"
           >
             iptv-org issue tracker
           </a>
@@ -201,7 +202,7 @@ function AboutSection({
             href={meta.repoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-violet-400/90 underline-offset-2 hover:underline"
+            className="text-amber-300/90 underline-offset-2 hover:underline"
           >
             awesome-zhuiju-free
           </a>{" "}
@@ -210,7 +211,7 @@ function AboutSection({
             href={catalog.meta.sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-violet-400/90 underline-offset-2 hover:underline"
+            className="text-amber-300/90 underline-offset-2 hover:underline"
           >
             iptv-org
           </a>{" "}
@@ -219,7 +220,7 @@ function AboutSection({
             href="https://github.com/video-dev/hls.js"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-violet-400/90 underline-offset-2 hover:underline"
+            className="text-amber-300/90 underline-offset-2 hover:underline"
           >
             hls.js
           </a>{" "}

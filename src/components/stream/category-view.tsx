@@ -166,20 +166,20 @@ export function CategoryView({
         <div className="relative mx-auto w-full max-w-7xl px-4 pb-8 pt-6 sm:px-6">
           <button
             onClick={onBack}
-            className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-zinc-400 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-violet-400"
+            className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-zinc-400 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-amber-400"
             aria-label="Go back"
           >
             <ArrowLeft className="size-3.5" />
             Back
           </button>
 
-          <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.22em] text-violet-300">
+          <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.22em] text-amber-300">
             Category
           </p>
           <h1 className="font-display mt-2 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
             {catName}
           </h1>
-          <p className="mt-2 text-base font-medium text-violet-300/90">{meta.tagline}</p>
+          <p className="mt-2 text-base font-medium text-amber-300/90">{meta.tagline}</p>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-300/85">{meta.blurb}</p>
 
           {/* stat chips */}
@@ -210,14 +210,14 @@ export function CategoryView({
             <button
               onClick={playRandom}
               disabled={status !== "ready" || sorted.length === 0}
-              className="inline-flex h-10 items-center gap-2 rounded-lg bg-violet-600 px-5 text-sm font-semibold text-white shadow-lg shadow-violet-900/50 transition-colors hover:bg-violet-500 focus-visible:outline-2 focus-visible:outline-violet-400 disabled:pointer-events-none disabled:opacity-40"
+              className="inline-flex h-10 items-center gap-2 rounded-lg bg-gradient-to-r from-amber-300 to-yellow-400 px-5 text-sm font-bold text-zinc-950 shadow-lg shadow-amber-500/20 transition-all hover:brightness-110 focus-visible:outline-2 focus-visible:outline-amber-400 disabled:pointer-events-none disabled:opacity-40"
             >
               <Shuffle className="size-4" />
               Play random
             </button>
             <button
               onClick={() => onOpenInLiveTv(categoryId)}
-              className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-5 text-sm font-medium text-zinc-100 backdrop-blur transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-violet-400"
+              className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-5 text-sm font-medium text-zinc-100 backdrop-blur transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-amber-400"
             >
               <Tv className="size-4" />
               Open in Live TV
@@ -261,7 +261,7 @@ export function CategoryView({
               <button
                 key={r.id}
                 onClick={() => onOpenCategory(r.id)}
-                className="rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:border-violet-400/40 hover:bg-violet-500/10 hover:text-white focus-visible:outline-2 focus-visible:outline-violet-400"
+                className="rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:border-amber-400/40 hover:bg-amber-400/10 hover:text-white focus-visible:outline-2 focus-visible:outline-amber-400"
               >
                 {r.name}
                 <span className="ml-1.5 font-mono text-[10px] text-zinc-600">{r.n}</span>
@@ -296,7 +296,7 @@ export function CategoryView({
             </p>
             <button
               onClick={retry}
-              className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 text-sm font-medium text-zinc-200 transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-violet-400"
+              className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 text-sm font-medium text-zinc-200 transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-amber-400"
             >
               <RefreshCw className="size-4" />
               Retry
@@ -318,15 +318,16 @@ export function CategoryView({
           <>
             <div className="mt-8 flex flex-wrap gap-x-4 gap-y-7">
               {sorted.slice(0, visible).map((ch) => (
-                <PosterCard
-                  key={ch.id}
-                  channel={ch}
-                  hue={meta.hue}
-                  categories={categories}
-                  onPlay={onPlay}
-                  isFavorite={isFavorite}
-                  onToggleFavorite={onToggleFavorite}
-                />
+                <div key={ch.id} className="w-[148px] sm:w-[168px]">
+                  <PosterCard
+                    channel={ch}
+                    hue={meta.hue}
+                    categories={categories}
+                    onPlay={onPlay}
+                    isFavorite={isFavorite}
+                    onToggleFavorite={onToggleFavorite}
+                  />
+                </div>
               ))}
             </div>
 
@@ -338,7 +339,7 @@ export function CategoryView({
               {visible < sorted.length && (
                 <button
                   onClick={() => setVisible((v) => v + PAGE_SIZE)}
-                  className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-6 text-sm font-medium text-zinc-100 transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-violet-400"
+                  className="inline-flex h-10 items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-6 text-sm font-medium text-zinc-100 transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-amber-400"
                 >
                   Load more
                   <ArrowRight className="size-4" />

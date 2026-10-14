@@ -121,11 +121,28 @@
   }
 }
 
-/* ---------- OpenStream homepage utilities ---------- */
+/* ---------- Playbeat TV storefront utilities ---------- */
 
-/* cinematic serif for hero display titles */
+/* bold geometric display titles (storefront hero / category banners) */
 .font-display {
-  font-family: Georgia, "Times New Roman", "Noto Serif", serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.03em;
+}
+
+/* thin dark scrollbars for the storefront side panels */
+.scrollbar-slim {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(251, 191, 36, 0.25) transparent;
+}
+.scrollbar-slim::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-slim::-webkit-scrollbar-thumb {
+  background: rgba(251, 191, 36, 0.22);
+  border-radius: 999px;
+}
+.scrollbar-slim::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* hide horizontal scrollbars on carousels (wheel/touch/arrow nav still works) */

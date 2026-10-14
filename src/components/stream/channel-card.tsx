@@ -32,7 +32,7 @@ export const ChannelCard = memo(function ChannelCard({
       }}
       className={cn(
         "group flex h-full cursor-pointer flex-col gap-2.5 rounded-xl border border-zinc-800 bg-zinc-900/60 p-3 transition-colors",
-        "hover:border-zinc-600 hover:bg-zinc-900 focus-visible:outline-2 focus-visible:outline-violet-500"
+        "hover:border-zinc-600 hover:bg-zinc-900 focus-visible:outline-2 focus-visible:outline-amber-400"
       )}
     >
       {/* logo tile */}

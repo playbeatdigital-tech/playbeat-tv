@@ -20,7 +20,7 @@ const META: Record<string, CategoryPageMeta> = {
     tagline: "The world, live",
     blurb:
       "Round-the-clock breaking news, market coverage and world affairs from broadcasters on every continent. When a story breaks, it breaks here first.",
-    hue: "from-purple-950 via-[#1a1030] to-[#0b0819]",
+    hue: "from-yellow-950/80 via-[#1a1408] to-[#0b0819]",
     art: "/hero/hero-news.png",
   },
   religious: {
@@ -33,13 +33,13 @@ const META: Record<string, CategoryPageMeta> = {
     tagline: "Pure entertainment",
     blurb:
       "Talk shows, variety formats, celebrity programming and general entertainment — the channels people leave on all day.",
-    hue: "from-fuchsia-950 via-[#22102e] to-[#0b0819]",
+    hue: "from-orange-950 via-[#20100a] to-[#0b0819]",
   },
   music: {
     tagline: "Non-stop music",
     blurb:
       "Music video loops, live concerts and genre stations from the '80s to today. Press play and turn it up — no playlist required.",
-    hue: "from-fuchsia-900 via-[#2a0f33] to-[#0b0819]",
+    hue: "from-amber-900 via-[#1d1206] to-[#0b0819]",
     art: "/hero/hero-music.png",
   },
   movies: {
@@ -52,26 +52,26 @@ const META: Record<string, CategoryPageMeta> = {
     tagline: "Binge the serial world",
     blurb:
       "Drama, telenovelas, sitcoms and serialized storytelling — dedicated series channels streaming live, no subscription and no account.",
-    hue: "from-pink-950 via-[#2b0f24] to-[#0b0819]",
+    hue: "from-rose-950 via-[#221010] to-[#0b0819]",
   },
   sports: {
     tagline: "Live from the arena",
     blurb:
       "Match coverage, action sports and outdoor adventure from channels built for fans. The whistle never stops here.",
-    hue: "from-violet-900 via-[#191233] to-[#0b0819]",
+    hue: "from-orange-900 via-[#1c1006] to-[#0b0819]",
     art: "/hero/hero-sports.png",
   },
   kids: {
     tagline: "For the little ones",
     blurb:
       "Cartoons, educational shows and family-safe programming that parents can leave on without a second thought.",
-    hue: "from-purple-900 via-[#1c1233] to-[#0b0819]",
+    hue: "from-yellow-900/70 via-[#1c1408] to-[#0b0819]",
   },
   animation: {
     tagline: "Anime & animated worlds",
     blurb:
       "Anime networks, classic cartoons and modern animation — drawn worlds that keep running twenty-four seven.",
-    hue: "from-emerald-950 via-[#0b1f18] to-[#0b0819]",
+    hue: "from-teal-950 via-[#0b1a18] to-[#0b0819]",
   },
   legislative: {
     tagline: "Civic proceedings",
@@ -95,7 +95,7 @@ const META: Record<string, CategoryPageMeta> = {
     tagline: "The world, in focus",
     blurb:
       "Nature, history, science and human stories — documentary channels for the endlessly curious.",
-    hue: "from-violet-950 via-[#101028] to-[#0b0819]",
+    hue: "from-amber-950/70 via-[#141008] to-[#0b0819]",
     art: "/hero/hero-docs.png",
   },
   comedy: {
@@ -152,7 +152,7 @@ const META: Record<string, CategoryPageMeta> = {
     tagline: "Together time",
     blurb:
       "All-ages programming designed for watching as a family — game shows, movies and gentle comedy.",
-    hue: "from-pink-900 via-[#2b1220] to-[#0b0819]",
+    hue: "from-rose-900 via-[#241014] to-[#0b0819]",
   },
   public: {
     tagline: "Public broadcasting",
@@ -176,7 +176,7 @@ const META: Record<string, CategoryPageMeta> = {
     tagline: "How the world works",
     blurb:
       "Science and discovery channels covering space, nature and the technology shaping tomorrow.",
-    hue: "from-violet-950 via-[#0e1226] to-[#0b0819]",
+    hue: "from-stone-800 via-[#12101a] to-[#0b0819]",
   },
   relax: {
     tagline: "Slow television",
@@ -190,7 +190,7 @@ const FALLBACK: CategoryPageMeta = {
   tagline: "Live, free and open",
   blurb:
     "Live free-to-air channels in this category, indexed from the open iptv-org catalog and streamed straight to your browser.",
-  hue: "from-violet-950 via-[#14102b] to-[#0b0819]",
+  hue: "from-amber-950/70 via-[#171106] to-[#0b0819]",
 };
 
 export function categoryPageMeta(categoryId: string): CategoryPageMeta {

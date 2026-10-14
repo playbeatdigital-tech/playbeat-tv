@@ -242,7 +242,7 @@ function PlayerEngine({
         {/* connecting overlay */}
         {status === "connecting" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/70">
-            <Loader2 className="size-8 animate-spin text-violet-400" />
+            <Loader2 className="size-8 animate-spin text-amber-400" />
             <p className="text-sm text-zinc-300">Connecting to {channel.name}…</p>
           </div>
         )}
@@ -261,7 +261,7 @@ function PlayerEngine({
               <Button
                 size="sm"
                 onClick={retry}
-                className="bg-violet-600 text-white hover:bg-violet-500"
+                className="bg-amber-400 text-zinc-950 hover:bg-amber-300"
               >
                 <RefreshCw className="size-3.5" />
                 Retry
@@ -301,7 +301,7 @@ function PlayerEngine({
         {status === "playing" && muted && (
           <button
             onClick={toggleMute}
-            className="absolute left-3 top-3 rounded-full bg-zinc-950/80 px-3 py-1.5 text-xs font-medium text-violet-300 ring-1 ring-violet-500/40 transition-colors hover:bg-zinc-900"
+            className="absolute left-3 top-3 rounded-full bg-zinc-950/80 px-3 py-1.5 text-xs font-medium text-amber-300 ring-1 ring-amber-400/40 transition-colors hover:bg-zinc-900"
           >
             <VolumeX className="mr-1.5 inline size-3.5" />
             Tap to unmute
@@ -367,7 +367,7 @@ function PlayerEngine({
             referrerPolicy="no-referrer"
           />
         ) : (
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-zinc-900 text-sm font-bold text-violet-400">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-zinc-900 text-sm font-bold text-amber-400">
             {channel.name.charAt(0).toUpperCase()}
           </div>
         )}

@@ -141,7 +141,7 @@ export function homeRows(): HomeRow[] {
       title: "Trending Across the Globe",
       subtitle: "The most-watched live channels this week.",
       variant: "poster",
-      hue: "from-violet-950 via-[#14102b] to-[#0b0819]",
+      hue: "from-amber-950/80 via-[#171106] to-[#0b0819]",
       channels: byIds(TRENDING_IDS),
     },
     {
@@ -149,7 +149,7 @@ export function homeRows(): HomeRow[] {
       title: "Anime & Animation",
       subtitle: "Naruto, Animax, RetroCrush — drawn worlds on air 24/7.",
       variant: "poster",
-      hue: "from-emerald-950 via-[#0b1f18] to-[#0b0819]",
+      hue: "from-teal-950 via-[#0b1a18] to-[#0b0819]",
       category: "animation",
       channels: topByCategory("animation", 18, /anime|animax|retrocrush|hidive/i),
     },
@@ -158,7 +158,7 @@ export function homeRows(): HomeRow[] {
       title: "Series & Dramas",
       subtitle: "Serialized stories, episode after episode — no subscription.",
       variant: "poster",
-      hue: "from-pink-950 via-[#2b0f24] to-[#0b0819]",
+      hue: "from-orange-950 via-[#20100a] to-[#0b0819]",
       category: "series",
       channels: topByCategory("series", 18),
     },
@@ -167,7 +167,7 @@ export function homeRows(): HomeRow[] {
       title: "News Around the Clock",
       subtitle: "Breaking stories and world events, live.",
       variant: "poster",
-      hue: "from-purple-950 via-[#1a1030] to-[#0b0819]",
+      hue: "from-yellow-950/70 via-[#1a1508] to-[#0b0819]",
       category: "news",
       channels: topByCategory("news", 14),
     },
@@ -176,7 +176,7 @@ export function homeRows(): HomeRow[] {
       title: "Music & Concerts",
       subtitle: "Non-stop music videos and live sessions.",
       variant: "poster",
-      hue: "from-fuchsia-950 via-[#22102e] to-[#0b0819]",
+      hue: "from-amber-900 via-[#1d1206] to-[#0b0819]",
       category: "music",
       channels: topByCategory("music", 14),
     },
@@ -185,7 +185,7 @@ export function homeRows(): HomeRow[] {
       title: "Sports Arena",
       subtitle: "Live games, adrenaline and outdoor action.",
       variant: "wide",
-      hue: "from-violet-900 via-[#191233] to-[#0b0819]",
+      hue: "from-orange-900 via-[#1c1006] to-[#0b0819]",
       category: "sports",
       channels: topByCategory("sports", 14),
     },
@@ -194,7 +194,7 @@ export function homeRows(): HomeRow[] {
       title: "Movies & Cinema",
       subtitle: "Free-to-air cinema running around the clock.",
       variant: "wide",
-      hue: "from-rose-950 via-[#241028] to-[#0b0819]",
+      hue: "from-rose-950 via-[#200b10] to-[#0b0819]",
       category: "movies",
       channels: topByCategory("movies", 14),
     },
@@ -203,7 +203,7 @@ export function homeRows(): HomeRow[] {
       title: "Kids & Family",
       subtitle: "Cartoons and family-friendly fun, all day.",
       variant: "wide",
-      hue: "from-purple-900 via-[#1c1233] to-[#0b0819]",
+      hue: "from-yellow-900/70 via-[#1c1408] to-[#0b0819]",
       category: "kids",
       channels: topByCategory("kids", 14),
     },
@@ -212,7 +212,7 @@ export function homeRows(): HomeRow[] {
       title: "Documentary & Science",
       subtitle: "Explore the planet, one story at a time.",
       variant: "wide",
-      hue: "from-violet-950 via-[#101028] to-[#0b0819]",
+      hue: "from-stone-800 via-[#16130c] to-[#0b0819]",
       category: "documentary",
       channels: topByCategory("documentary", 14),
     },
@@ -225,9 +225,47 @@ export function homeRows(): HomeRow[] {
       title: "Crystal-Clear Masterpieces",
       subtitle: "Hand-picked channels streaming in the highest quality.",
       variant: "wide",
-      hue: "from-fuchsia-950 via-[#1b0f2e] to-[#0b0819]",
+      hue: "from-yellow-900/60 via-[#191104] to-[#0b0819]",
       channels: picks,
     });
   }
+  return rows.filter((r) => r.channels.length >= 4);
+}
+
+/* ---------- popular channels: storefront chips (All / Sports / …) ---------- */
+
+const POPULAR_N = 10;
+
+const POPULAR_CATS = [
+  "sports",
+  "news",
+  "movies",
+  "kids",
+  "music",
+  "entertainment",
+] as const;
+
+const WARM_HUE = "from-amber-950/70 via-[#171106] to-[#0b0819]";
+
+export function popularPicks(): HomeRow[] {
+  const rows: HomeRow[] = [
+    {
+      id: "pop-all",
+      title: "All",
+      subtitle: "Top picks across every category.",
+      variant: "poster",
+      hue: WARM_HUE,
+      channels: topOverall(POPULAR_N),
+    },
+    ...POPULAR_CATS.map((cat) => ({
+      id: `pop-${cat}`,
+      title: cat.charAt(0).toUpperCase() + cat.slice(1),
+      subtitle: `Most-watched ${cat} channels.`,
+      variant: "poster" as const,
+      hue: WARM_HUE,
+      category: cat,
+      channels: topByCategory(cat, POPULAR_N),
+    })),
+  ];
   return rows.filter((r) => r.channels.length >= 4);
 }

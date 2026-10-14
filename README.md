@@ -1,14 +1,14 @@
-# OpenStream — Free Live TV, No Login
+# Playbeat TV — Free Live TV & Streaming, No Login
 
-A production-quality, open streaming web app built from the
+Playbeat TV is a production-quality, open streaming storefront built from the
 [awesome-zhuiju-free](https://github.com/laoma528/awesome-zhuiju-free)
 repository. It applies the repository's own copyright-risk research, keeps
 only the open and declared-safe subset, and turns it into something you can
 actually watch: **7,985 public free-to-air channels streamed in the browser —
 no account, no tracking, no ads.**
 
-The app is a single Next.js route with a cinematic, Streamplay-style
-interface: rotating hero spotlight, curated content rows (including dedicated
+The app is a single Next.js route with an amber-and-ink IPTV-style
+storefront: rotating hero spotlight, curated content rows (including dedicated
 **Anime & Animation** and **Series & Dramas** rails), and full **category
 discovery pages** for all 28 genres.
 
@@ -17,9 +17,10 @@ discovery pages** for all 28 genres.
 - **Live TV player** — hls.js adaptive streaming with quality badges,
   multi-source fallback (retry / try next source / direct link), tap-to-unmute
   autoplay, LIVE indicator, fullscreen, and shareable deep links (`#watch=<id>`).
-- **Cinematic home** — auto-advancing hero spotlight over six curated channels
-  with AI-generated backdrops, a Featured Selection side panel, and ten
-  discovery rails (Trending, Anime & Animation, Series & Dramas, News, Music,
+- **Storefront home** — auto-advancing hero spotlight over six curated channels
+  with AI-generated backdrops, a live "Now playing" spotlight duo, a
+  Popular channels chip grid, an always-on **All Channels** side rail with
+  per-row play buttons, a left browse rail, and ten discovery rails (Trending, Anime & Animation, Series & Dramas, News, Music,
   Sports Arena, Movies & Cinema, Kids & Family, Documentary & Science,
   Crystal-Clear Masterpieces).
 - **Category pages** — every one of the 28 iptv-org genres gets a dedicated
@@ -33,10 +34,10 @@ discovery pages** for all 28 genres.
 - **Personal lists without accounts** — favorites and continue-watching are
   persisted in `localStorage` only. There is no auth, no analytics, no cookies
   beyond the session.
-- **Collection tab** — the original 119-resource research index from
+- **Collection view** — the original 119-resource research index from
   awesome-zhuiju-free, kept browsable for transparency (ratings, risk
   profiles, daily availability checks, safe-playlist view).
-- **About & content policy** — plain-language sourcing, takedown path, and
+- **About & content policy view** — plain-language sourcing, takedown path, and
   limitations.
 
 ## Content & copyright posture

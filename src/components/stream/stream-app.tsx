@@ -56,6 +56,7 @@ export interface StreamAppProps {
   onPlay: (channel: StreamChannel) => void;
   initialCategory?: string;
   initialMyList?: boolean;
+  initialRecents?: boolean;
   searchFocusKey?: number;
 }
 
@@ -69,6 +70,7 @@ export function StreamApp({
   onPlay,
   initialCategory = "all",
   initialMyList = false,
+  initialRecents = false,
   searchFocusKey = 0,
 }: StreamAppProps) {
   /* ---------- data ---------- */
@@ -90,6 +92,7 @@ export function StreamApp({
   const [category, setCategory] = useState(initialCategory);
   const [country, setCountry] = useState("all");
   const [myListOnly, setMyListOnly] = useState(initialMyList);
+  const [recentsOnly, setRecentsOnly] = useState(initialRecents);
   const [visible, setVisible] = useState(PAGE_SIZE);
 
   const gridRef = useRef<HTMLDivElement>(null);
@@ -125,19 +128,30 @@ export function StreamApp({
 
   /* ---------- derived ---------- */
   const filtersActive =
-    query.trim() !== "" || category !== "all" || country !== "all" || myListOnly;
+    query.trim() !== "" ||
+    category !== "all" ||
+    country !== "all" ||
+    myListOnly ||
+    recentsOnly;
 
   const allChannels = catalog?.channels ?? null;
 
+  const recentIds = useMemo(() => recents.map((r) => r.id), [recents]);
+
   const filtered = useMemo(() => {
     if (!allChannels) return [];
+    const ids = myListOnly
+      ? favs
+      : recentsOnly
+        ? recentIds
+        : undefined;
     return filterChannels(allChannels, {
       q: query,
       category,
       country,
-      ids: myListOnly ? favs : undefined,
+      ids,
     });
-  }, [allChannels, query, category, country, myListOnly, favs]);
+  }, [allChannels, query, category, country, myListOnly, recentsOnly, favs, recentIds]);
 
   const shown = filtersActive ? filtered : (allChannels ?? []);
 
@@ -165,6 +179,7 @@ export function StreamApp({
     setCategory("all");
     setCountry("all");
     setMyListOnly(false);
+    setRecentsOnly(false);
     setVisible(PAGE_SIZE);
   }
 
@@ -181,8 +196,12 @@ export function StreamApp({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="flex items-center gap-2 text-lg font-bold text-zinc-100">
-              <PlayCircle className="size-5 text-violet-400" />
-              Free live TV, straight in your browser
+              <PlayCircle className="size-5 text-amber-400" />
+              {recentsOnly
+                ? "Recently watched on Playbeat"
+                : myListOnly
+                  ? "Your My List — channels you saved"
+                  : "Free live TV, straight in your browser"}
             </h2>
             <p className="mt-1 text-sm text-zinc-500">
               {total.toLocaleString()} public free-to-air channels ·{" "}
@@ -193,9 +212,9 @@ export function StreamApp({
           <div className="flex flex-wrap gap-1.5">
             <Badge
               variant="outline"
-              className="border-emerald-500/30 bg-emerald-500/10 font-mono text-[11px] text-emerald-300"
+              className="border-amber-400/30 bg-amber-400/10 font-mono text-[11px] text-amber-300"
             >
-              Open-source content index (iptv-org)
+              Playbeat TV · open-source content index (iptv-org)
             </Badge>
             <Badge
               variant="outline"
@@ -304,10 +323,10 @@ export function StreamApp({
             onClick={() => applyFilter(() => setMyListOnly((v) => !v))}
             className={cn(
               "w-full border-zinc-800 bg-zinc-900/60 hover:bg-zinc-900 sm:w-36",
-              myListOnly ? "text-rose-400" : "text-zinc-300 hover:text-zinc-200"
+              myListOnly ? "text-amber-300" : "text-zinc-300 hover:text-zinc-200"
             )}
           >
-            <Heart className={cn("size-4", (myListOnly || favs.length > 0) && "fill-rose-400/80 text-rose-400")} />
+            <Heart className={cn("size-4", (myListOnly || favs.length > 0) && "fill-amber-300/80 text-amber-300")} />
             My List{favs.length > 0 ? ` (${favs.length})` : ""}
           </Button>
         </div>
@@ -492,7 +511,7 @@ function Chip({
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
         active
-          ? "border-violet-500/60 bg-violet-500/15 text-violet-300"
+          ? "border-amber-400/60 bg-amber-400/15 text-amber-300"
           : "border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:border-zinc-700 hover:bg-zinc-900 hover:text-zinc-200"
       )}
     >
@@ -501,7 +520,7 @@ function Chip({
       <span
         className={cn(
           "rounded-full px-1.5 py-px font-mono text-[10px]",
-          active ? "bg-violet-500/20 text-violet-200" : "bg-zinc-800 text-zinc-500"
+          active ? "bg-amber-400/20 text-amber-200" : "bg-zinc-800 text-zinc-500"
         )}
       >
         {count}
@@ -528,7 +547,7 @@ function Rail({
   return (
     <div className="mt-5" aria-label={title}>
       <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-zinc-300">
-        <span className="[&>svg]:size-4 [&>svg]:text-violet-400">{icon}</span>
+        <span className="[&>svg]:size-4 [&>svg]:text-amber-400">{icon}</span>
         {title}
         <span className="font-mono text-xs text-zinc-600">{channels.length}</span>
       </h3>

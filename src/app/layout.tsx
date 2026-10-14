@@ -14,10 +14,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OpenStream — Free Live TV, No Login",
+  title: "Playbeat TV — Free Live TV & Streaming, No Login",
   description:
-    "Watch 7,985+ public free-to-air TV channels in your browser. Open streaming app with no login, no tracking, and no ads — built from the awesome-zhuiju-free repository's copyright-safe subset, powered by the open-source iptv-org index.",
+    "Turn up the moment. Watch 7,985+ public free-to-air TV channels free in your browser — live news, sports, movies, series and anime. No login, no tracking, no ads, powered by the open-source iptv-org index.",
   keywords: [
+    "Playbeat TV",
     "free live TV",
     "open streaming",
     "IPTV",
@@ -25,21 +26,21 @@ export const metadata: Metadata = {
     "iptv-org",
     "no login streaming",
   ],
-  authors: [{ name: "Z.ai Team" }],
+  authors: [{ name: "Playbeat TV" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/logo.svg",
   },
   openGraph: {
-    title: "OpenStream — Free Live TV, No Login",
+    title: "Playbeat TV — Free Live TV & Streaming, No Login",
     description:
       "7,985+ public free-to-air channels in your browser. No login, no tracking — only open-source, copyright-safe sources.",
     url: "https://chat.z.ai",
-    siteName: "OpenStream",
+    siteName: "Playbeat TV",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "OpenStream — Free Live TV, No Login",
+    title: "Playbeat TV — Free Live TV & Streaming, No Login",
     description:
       "7,985+ public free-to-air channels in your browser. No login, no tracking — only open-source, copyright-safe sources.",
   },

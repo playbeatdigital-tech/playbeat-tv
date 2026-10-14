@@ -86,8 +86,11 @@ export function filterChannels(
    Implemented as a tiny external store so components can consume it via
    useSyncExternalStore — no setState-in-effect hydration patterns. */
 
-const FAV_KEY = "openstream:favorites";
-const RECENT_KEY = "openstream:recents";
+const FAV_KEY = "playbeat:favorites";
+const RECENT_KEY = "playbeat:recents";
+/* Pre-rebrand keys — migrated once so returning visitors keep their list. */
+const LEGACY_FAV_KEY = "openstream:favorites";
+const LEGACY_RECENT_KEY = "openstream:recents";
 const MAX_RECENTS = 12;
 
 export interface RecentEntry {
@@ -106,7 +109,20 @@ function createStore<T>(key: string, initial: T) {
     if (hydrated || typeof window === "undefined") return;
     hydrated = true;
     try {
-      const raw = window.localStorage.getItem(key);
+      let raw = window.localStorage.getItem(key);
+      if (!raw) {
+        const legacyKey = key === FAV_KEY ? LEGACY_FAV_KEY : LEGACY_RECENT_KEY;
+        const legacy = window.localStorage.getItem(legacyKey);
+        if (legacy) {
+          raw = legacy;
+          try {
+            window.localStorage.setItem(key, legacy);
+            window.localStorage.removeItem(legacyKey);
+          } catch {
+            /* migration is best-effort */
+          }
+        }
+      }
       if (raw) cache = JSON.parse(raw) as T;
     } catch {
       /* keep initial */
