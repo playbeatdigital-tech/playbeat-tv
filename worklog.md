@@ -142,3 +142,22 @@ Stage Summary:
 - Legal posture unchanged: only iptv-org public free-to-air index (7,985 channels), no high-risk sites, no media hosting; policy copy in About + footer
 - Screenshots: scripts/shot-final-hero.png, shot-final-hero2.png, shot-deeplink.png, shot-mobile-hero.png, shot-footer.png
 - Rebuild artwork: bash scripts/gen_hero_art.sh (skips existing); rebuild catalog: python3 scripts/build_stream_catalog.py
+
+---
+Task ID: 8
+Agent: main (Super Z)
+Task: Add Series/Anime-style rows + category pages for deeper discovery; create private GitHub repo and push everything
+
+Work Log:
+- spotlight.ts: added "Anime & Animation" row (animation cat, 18 items, boost=/anime|animax|retrocrush|hidive/i -> RetroCrush/Animax Asia/Anime Vision lead) and "Series & Dramas" row (series cat, 18) in prime slots 2-3; retitled Kids->"Kids & Family", Movies->"Movies & Cinema" to avoid overlap; topByCategory gained optional boost param
+- NEW src/lib/category-pages.ts: editorial meta for all 28 iptv-org categories (tagline, blurb, hue gradient, optional art reusing /hero backdrops)
+- NEW src/components/stream/category-view.tsx: dedicated discovery page per category — banner (art/hue, Back, stats chips: channels/countries/HD+/sources), 4 sort modes (Discover/A-Z/Quality/Sources), co-occurrence "You may also like" chips (top 8, excludes general), poster wall (flex-wrap of home-view PosterCard, now exported), pagination 48 + Load more, Play random, Open in Live TV, skeleton/error/empty states; key-remount per category
+- app-shell.tsx: view="category" + activeCategory state; openCategory(pushState #category=<id>) + hashchange handling for #category= and #watch= (fixed TDZ ordering bug: effect moved below openCategory def); goView/browseTv clear #category hash; onBack returns to last non-category view (ref captured via pure-ish updater); document.title per view/category; HomeView chips + footer Discover links now open category pages
+- layout.tsx: metadata title aligned to "OpenStream — Free Live TV, No Login" (Next.js hydration re-applies metadata title over effect-set title on mount; aligning removes the conflict)
+- E2E (agent-browser): home rows render anime-boosted; Explore->#category=animation page (DreamWorks/Mr Bean/Naruto/RetroCrush...); RetroCrush real playback 1920x1080 readyState 4 from category grid; random offline channel exercised Retry path; sort Name A-Z reorders (3ABN Kids...); related chip -> #category=comedy; Open in Live TV -> comedy preset; Back returns to prior view; fresh-load deep link #category=series renders 48 tiles; Load more 48->96 of 821 on News; footer News -> #category=news; titles correct on all views; mobile 390px no h-scroll; fresh-load console 0 errors; lint clean
+- GitHub: token verified (user mahbubakhanam177-ai); created PRIVATE repo openstream-tv via API; wrote production README.md (features/architecture/policy/attribution) + MIT LICENSE (with third-party data terms); .gitignore += repo_analysis/, tool-results/, scripts/iptv_cache/, scripts/*.png; untracked .env, repo_analysis gitlink, iptv_cache (7), 47 script screenshots, tool-results; commit 7c17522 pushed to origin/main; verified private:true, 24 root entries incl. src/scripts/public/download/upload; token-leak scan across all commits + tree: 0 hits
+
+Stage Summary:
+- Deliverable 1: category discovery pages (28) + Anime/Series home rows, deep-linkable, browser-verified
+- Deliverable 2: private repo https://github.com/mahbubakhanam177-ai/openstream-tv (main, commit 7c17522) — full app + docs + data pipeline; excluded: third-party repo clone, API cache, screenshots, .env (no secrets committed)
+- Regeneration: python3 scripts/build_stream_catalog.py (catalog), bash scripts/gen_hero_art.sh (art)
