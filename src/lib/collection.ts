@@ -66,21 +66,27 @@ export const meta = dataset.meta;
 export const categories = dataset.categories;
 
 export const SCORE_LABELS: Record<string, string> = {
-  more: "Content volume",
-  speed: "Speed",
-  clean: "Ad cleanliness",
-  stable: "Stability",
-  ease: "Ease of use",
+  more: "资源量",
+  speed: "速度",
+  clean: "广告清洁度",
+  stable: "稳定性",
+  ease: "易用性",
 };
 
 export function categoryLabel(cat: string): string {
-  const c = categories[cat];
-  return c ? `${c.en} · ${c.zh}` : cat;
+  return categories[cat]?.zh ?? cat;
 }
 
-export function categoryEn(cat: string): string {
-  return categories[cat]?.en ?? cat;
+export function categoryZh(cat: string): string {
+  return categories[cat]?.zh ?? cat;
 }
+
+export const AVAILABILITY_ZH: Record<string, string> = {
+  reachable: "可达",
+  restricted: "受限",
+  unreachable: "无法访问",
+  unchecked: "未检测",
+};
 
 export function formatResponseTime(ms: number | null): string {
   if (ms == null) return "—";

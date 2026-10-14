@@ -36,3 +36,17 @@ Work Log:
 Stage Summary:
 - Deliverable: interactive preview panel at / route (preview link via web preview), snapshot data as of 2026-10-14
 - 119 resources browsable with 6 filter dimensions; all golden paths browser-verified
+
+---
+Task ID: 3
+Agent: main (Super Z)
+Task: Localize the movie collection preview panel UI to Simplified Chinese (user request "All in chinese?")
+
+Work Log:
+- Translated all UI strings to Simplified Chinese across 6 files: collection.ts (score labels, category labels, AVAILABILITY_ZH map), status.tsx (badge labels: 可达/受限/无法访问/未检测/高版权风险/推荐/谨慎使用/已移除), resource-card.tsx (详情/访问, 响应/检测于), resource-dialog.tsx (维护者评分, 风险档案, 每日可用性检测, 维护者验证备注, risk value map 高/中/低/未知, method map 人工检测, 打开网站), collection-panel.tsx (stat tabs, search placeholder, sort/risk/verification selects, category chips, 仅看精选/重置/empty state), page.tsx + layout.tsx (header, badges, footer, metadata, lang=zh-CN)
+- Data values (GLOBAL, dates, URLs) kept as-is; risk/method/availability enum values mapped to Chinese
+- Lint clean; browser-verified: header/stats/chips/cards/dialog all render in Chinese, Unreachable filter -> 显示 9 / 共 119 个资源, zero console errors
+
+Stage Summary:
+- Panel UI now fully in Simplified Chinese; resource data (names/summaries/notes) remains original Chinese from source
+- Same route/features as before, no functional changes

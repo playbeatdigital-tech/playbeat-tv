@@ -16,7 +16,7 @@ import {
   VerificationBadge,
 } from "@/components/collection/status";
 import {
-  categoryEn,
+  categoryZh,
   formatResponseTime,
   hostOf,
   type ResourceItem,
@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 
 function ScoreDots({ value }: { value: number }) {
   return (
-    <span className="inline-flex items-center gap-[3px]" aria-label={`${value} out of 5`}>
+    <span className="inline-flex items-center gap-[3px]" aria-label={`${value} 分（满分 5 分）`}>
       {[1, 2, 3, 4, 5].map((i) => (
         <span
           key={i}
@@ -81,7 +81,7 @@ export function ResourceCard({
             variant="secondary"
             className="border-zinc-700/60 bg-zinc-800/80 text-[11px] text-zinc-300"
           >
-            {categoryEn(item.category)}
+            {categoryZh(item.category)}
           </Badge>
           {item.avgScore != null && (
             <span className="inline-flex items-center gap-1.5 text-[11px] text-zinc-400">
@@ -126,7 +126,7 @@ export function ResourceCard({
 
         {item.availability?.responseMs != null && (
           <p className="text-[11px] text-zinc-600">
-            Response {formatResponseTime(item.availability.responseMs)} · checked{" "}
+            响应 {formatResponseTime(item.availability.responseMs)} · 检测于{" "}
             {item.availability.checkedAt?.slice(0, 10) ?? "—"}
           </p>
         )}
@@ -140,7 +140,7 @@ export function ResourceCard({
           onClick={() => onDetails(item)}
         >
           <Info className="size-3.5" />
-          Details
+          详情
         </Button>
         <Button
           variant="outline"
@@ -150,7 +150,7 @@ export function ResourceCard({
         >
           <a href={item.url} target="_blank" rel="noopener noreferrer nofollow">
             <ExternalLink className="size-3.5" />
-            Visit
+            访问
           </a>
         </Button>
       </CardFooter>

@@ -18,6 +18,7 @@ import {
 } from "@/components/collection/status";
 import {
   SCORE_LABELS,
+  AVAILABILITY_ZH,
   categoryLabel,
   formatCheckedAt,
   formatResponseTime,
@@ -28,9 +29,21 @@ import { ExternalLink, Globe, LogIn, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const FREE_LEVEL_LABEL: Record<string, string> = {
-  free: "Free",
-  partly_free: "Partly free",
-  unknown: "Unknown",
+  free: "免费",
+  partly_free: "部分免费",
+  unknown: "未知",
+};
+
+const RISK_VALUE_ZH: Record<string, string> = {
+  high: "高",
+  medium: "中",
+  low: "低",
+  unknown: "未知",
+};
+
+const METHOD_ZH: Record<string, string> = {
+  manual: "人工检测",
+  automated: "自动检测",
 };
 
 function ScoreRow({ label, value }: { label: string; value: number | undefined }) {
@@ -115,7 +128,7 @@ export function ResourceDialog({
               variant="outline"
               className="border-zinc-700 bg-zinc-800/60 text-zinc-300"
             >
-              <LogIn className="size-3" /> Login required
+              <LogIn className="size-3" /> 需要登录
             </Badge>
           )}
         </div>
@@ -139,14 +152,14 @@ export function ResourceDialog({
           {/* Scores */}
           <section className="rounded-lg border border-zinc-800/80 bg-zinc-900/40 p-3">
             <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-              Maintainer scores
+              维护者评分
             </h4>
             <div className="space-y-1.5">
               {Object.entries(SCORE_LABELS).map(([k, label]) => (
                 <ScoreRow key={k} label={label} value={item.scores[k as keyof typeof item.scores]} />
               ))}
               {Object.keys(item.scores).length === 0 && (
-                <p className="text-xs text-zinc-600">No scores recorded</p>
+                <p className="text-xs text-zinc-600">暂无评分</p>
               )}
             </div>
           </section>
@@ -154,17 +167,17 @@ export function ResourceDialog({
           {/* Risk profile */}
           <section className="rounded-lg border border-zinc-800/80 bg-zinc-900/40 p-3">
             <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-              Risk profile (self-declared)
+              风险档案（维护者自报）
             </h4>
             <div className="space-y-1.5">
-              <InfoRow label="Copyright">{risks.copyright ?? "unknown"}</InfoRow>
-              <InfoRow label="Safety">{risks.safety ?? "unknown"}</InfoRow>
-              <InfoRow label="Privacy">{risks.privacy ?? "unknown"}</InfoRow>
-              <InfoRow label="Payment">{risks.payment ?? "unknown"}</InfoRow>
-              <InfoRow label="Free level">
+              <InfoRow label="版权">{RISK_VALUE_ZH[risks.copyright ?? "unknown"] ?? risks.copyright ?? "未知"}</InfoRow>
+              <InfoRow label="安全性">{RISK_VALUE_ZH[risks.safety ?? "unknown"] ?? risks.safety ?? "未知"}</InfoRow>
+              <InfoRow label="隐私">{RISK_VALUE_ZH[risks.privacy ?? "unknown"] ?? risks.privacy ?? "未知"}</InfoRow>
+              <InfoRow label="付费">{RISK_VALUE_ZH[risks.payment ?? "unknown"] ?? risks.payment ?? "未知"}</InfoRow>
+              <InfoRow label="免费程度">
                 {FREE_LEVEL_LABEL[item.freeLevel] ?? item.freeLevel}
               </InfoRow>
-              <InfoRow label="Regions">{item.regions.join(", ") || "—"}</InfoRow>
+              <InfoRow label="地区">{item.regions.join(", ") || "—"}</InfoRow>
             </div>
           </section>
         </div>
@@ -172,31 +185,30 @@ export function ResourceDialog({
         {/* Availability detail */}
         <section className="rounded-lg border border-zinc-800/80 bg-zinc-900/40 p-3">
           <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-            Daily availability check
+            每日可用性检测
           </h4>
           {av ? (
             <div className="space-y-1.5">
-              <InfoRow label="Status">
-                <span className="capitalize">{av.status}</span>
+              <InfoRow label="状态">
+                <span>{AVAILABILITY_ZH[av.status] ?? av.status}</span>
               </InfoRow>
-              <InfoRow label="HTTP status">{av.httpStatus ?? "—"}</InfoRow>
-              <InfoRow label="Response time">{formatResponseTime(av.responseMs)}</InfoRow>
-              <InfoRow label="Checked at">{formatCheckedAt(av.checkedAt)}</InfoRow>
+              <InfoRow label="HTTP 状态">{av.httpStatus ?? "—"}</InfoRow>
+              <InfoRow label="响应时间">{formatResponseTime(av.responseMs)}</InfoRow>
+              <InfoRow label="检测时间">{formatCheckedAt(av.checkedAt)}</InfoRow>
               {av.finalUrl && av.finalUrl !== item.url && (
-                <InfoRow label="Redirected to">
+                <InfoRow label="重定向至">
                   <span className="break-all font-mono text-xs">{hostOf(av.finalUrl)}</span>
                 </InfoRow>
               )}
               {av.error && (
-                <InfoRow label="Error">
+                <InfoRow label="错误">
                   <span className="break-all text-rose-300">{av.error}</span>
                 </InfoRow>
               )}
             </div>
           ) : (
             <p className="text-xs text-zinc-600">
-              This resource is not part of the automated daily check (typically open-source
-              projects and tools hosted on GitHub).
+              该资源未纳入每日自动检测（通常是托管在 GitHub 的开源项目或工具）。
             </p>
           )}
         </section>
@@ -204,14 +216,14 @@ export function ResourceDialog({
         {/* Verification notes */}
         <section className="rounded-lg border border-zinc-800/80 bg-zinc-900/40 p-3">
           <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-            Maintainer verification notes
+            维护者验证备注
           </h4>
           <p className="text-xs leading-relaxed text-zinc-400">
-            {item.verification.notes || "No notes recorded."}
+            {item.verification.notes || "暂无备注。"}
           </p>
           <p className="mt-2 text-[11px] text-zinc-600">
-            Last checked {item.verification.lastChecked ?? "—"} · method:{" "}
-            {item.verification.method ?? "—"} (original notes in Chinese)
+            最后检测 {item.verification.lastChecked ?? "—"} · 方式：{" "}
+            {METHOD_ZH[item.verification.method ?? ""] ?? item.verification.method ?? "—"}
           </p>
         </section>
 
@@ -219,8 +231,8 @@ export function ResourceDialog({
 
         <div className="flex flex-wrap items-center justify-between gap-2 pb-1">
           <p className="text-[11px] text-zinc-600">
-            Added {item.addedAt ?? "—"} · submitted by{" "}
-            {item.submittedBy === "maintainer" ? "maintainer" : item.submittedBy}
+            收录于 {item.addedAt ?? "—"} · 提交者{" "}
+            {item.submittedBy === "maintainer" ? "维护者" : item.submittedBy}
           </p>
           <Button
             size="sm"
@@ -229,7 +241,7 @@ export function ResourceDialog({
           >
             <a href={item.url} target="_blank" rel="noopener noreferrer nofollow">
               <ExternalLink className="size-3.5" />
-              Open site
+              打开网站
             </a>
           </Button>
         </div>

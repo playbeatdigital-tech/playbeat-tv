@@ -30,7 +30,7 @@ import { ResourceCard } from "@/components/collection/resource-card";
 import { ResourceDialog } from "@/components/collection/resource-dialog";
 import { cn } from "@/lib/utils";
 import {
-  categoryEn,
+  categoryZh,
   categories,
   items as allItems,
   meta,
@@ -57,25 +57,25 @@ type VerificationFilter = "all" | "recommended" | "caution" | "removed";
 type SortKey = "featured" | "score" | "newest" | "name";
 
 const AVAILABILITY_TABS: { key: AvailabilityFilter; label: string; count: number }[] = [
-  { key: "all", label: "All", count: allItems.length },
+  { key: "all", label: "全部", count: allItems.length },
   {
     key: "reachable",
-    label: "Reachable",
+    label: "可达",
     count: allItems.filter((i) => i.availability?.status === "reachable").length,
   },
   {
     key: "restricted",
-    label: "Restricted",
+    label: "受限",
     count: allItems.filter((i) => i.availability?.status === "restricted").length,
   },
   {
     key: "unreachable",
-    label: "Unreachable",
+    label: "无法访问",
     count: allItems.filter((i) => i.availability?.status === "unreachable").length,
   },
   {
     key: "unchecked",
-    label: "Not checked",
+    label: "未检测",
     count: allItems.filter((i) => i.availability == null).length,
   },
 ];
@@ -165,12 +165,12 @@ export function CollectionPanel() {
   }
 
   return (
-    <section className="flex-1" aria-label="Resource collection">
+    <section className="flex-1" aria-label="资源合集">
       {/* Availability stat tabs */}
       <div
         className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5"
         role="tablist"
-        aria-label="Filter by availability"
+        aria-label="按可用性筛选"
       >
         {AVAILABILITY_TABS.map((tab) => (
           <button
@@ -199,61 +199,61 @@ export function CollectionPanel() {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search name, description, tag or domain…"
+              placeholder="搜索名称、简介、标签或域名…"
               className="border-zinc-800 bg-zinc-900/60 pl-9 text-zinc-100 placeholder:text-zinc-600"
-              aria-label="Search resources"
+              aria-label="搜索资源"
             />
           </div>
           <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
             <SelectTrigger
               className="w-full border-zinc-800 bg-zinc-900/60 text-zinc-300 sm:w-44"
-              aria-label="Sort resources"
+              aria-label="排序方式"
             >
-              <SelectValue placeholder="Sort" />
+              <SelectValue placeholder="排序" />
             </SelectTrigger>
             <SelectContent className="border-zinc-800 bg-zinc-950 text-zinc-200">
-              <SelectItem value="featured">Featured first</SelectItem>
-              <SelectItem value="score">Score: high → low</SelectItem>
-              <SelectItem value="newest">Newest added</SelectItem>
-              <SelectItem value="name">Name A–Z</SelectItem>
+              <SelectItem value="featured">精选优先</SelectItem>
+              <SelectItem value="score">评分从高到低</SelectItem>
+              <SelectItem value="newest">最新收录</SelectItem>
+              <SelectItem value="name">名称排序</SelectItem>
             </SelectContent>
           </Select>
           <Select value={risk} onValueChange={(v) => setRisk(v as RiskFilter)}>
             <SelectTrigger
               className="w-full border-zinc-800 bg-zinc-900/60 text-zinc-300 sm:w-40"
-              aria-label="Filter by copyright risk"
+              aria-label="按版权风险筛选"
             >
-              <SelectValue placeholder="Risk" />
+              <SelectValue placeholder="风险" />
             </SelectTrigger>
             <SelectContent className="border-zinc-800 bg-zinc-950 text-zinc-200">
-              <SelectItem value="all">All risks</SelectItem>
-              <SelectItem value="high">High risk</SelectItem>
-              <SelectItem value="medium">Medium risk</SelectItem>
-              <SelectItem value="low">Low risk</SelectItem>
+              <SelectItem value="all">全部风险</SelectItem>
+              <SelectItem value="high">高风险</SelectItem>
+              <SelectItem value="medium">中等风险</SelectItem>
+              <SelectItem value="low">低风险</SelectItem>
             </SelectContent>
           </Select>
           <Select value={verification} onValueChange={(v) => setVerification(v as VerificationFilter)}>
             <SelectTrigger
               className="w-full border-zinc-800 bg-zinc-900/60 text-zinc-300 sm:w-44"
-              aria-label="Filter by verification status"
+              aria-label="按验证状态筛选"
             >
-              <SelectValue placeholder="Verification" />
+              <SelectValue placeholder="验证状态" />
             </SelectTrigger>
             <SelectContent className="border-zinc-800 bg-zinc-950 text-zinc-200">
-              <SelectItem value="all">All verifications</SelectItem>
-              <SelectItem value="recommended">Recommended</SelectItem>
-              <SelectItem value="caution">Caution</SelectItem>
-              <SelectItem value="removed">Removed</SelectItem>
+              <SelectItem value="all">全部状态</SelectItem>
+              <SelectItem value="recommended">推荐</SelectItem>
+              <SelectItem value="caution">谨慎使用</SelectItem>
+              <SelectItem value="removed">已移除</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {/* Category chips */}
-        <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Filter by category">
+        <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="按分类筛选">
           <CategoryChip
             active={category === "all"}
             onClick={() => setCategory("all")}
-            label="All"
+            label="全部"
             icon={<Clapperboard className="size-3.5" />}
             count={allItems.length}
           />
@@ -262,7 +262,7 @@ export function CollectionPanel() {
               key={cat}
               active={category === cat}
               onClick={() => setCategory(cat)}
-              label={categoryEn(cat)}
+              label={categoryZh(cat)}
               icon={CATEGORY_ICONS[cat] ?? <Clapperboard className="size-3.5" />}
               count={meta.categoryCounts[cat] ?? 0}
             />
@@ -272,17 +272,17 @@ export function CollectionPanel() {
         {/* Result row */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm text-zinc-500" aria-live="polite">
-            Showing <span className="font-mono text-zinc-300">{filtered.length}</span> of{" "}
-            <span className="font-mono text-zinc-300">{allItems.length}</span> resources
+            显示 <span className="font-mono text-zinc-300">{filtered.length}</span> / 共{" "}
+            <span className="font-mono text-zinc-300">{allItems.length}</span> 个资源
           </p>
           <div className="flex items-center gap-3">
             <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-400">
               <Switch
                 checked={featuredOnly}
                 onCheckedChange={setFeaturedOnly}
-                aria-label="Featured only"
+                aria-label="仅看精选"
               />
-              Featured only
+              仅看精选
             </label>
             {hasFilters && (
               <Button
@@ -292,7 +292,7 @@ export function CollectionPanel() {
                 className="h-8 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
               >
                 <RotateCcw className="size-3.5" />
-                Reset
+                重置
               </Button>
             )}
           </div>
@@ -309,7 +309,7 @@ export function CollectionPanel() {
       ) : (
         <div className="mt-10 flex flex-col items-center gap-3 rounded-xl border border-dashed border-zinc-800 py-14 text-center">
           <SearchX className="size-10 text-zinc-700" />
-          <p className="text-sm text-zinc-500">No resources match your filters.</p>
+          <p className="text-sm text-zinc-500">没有符合筛选条件的资源。</p>
           <Button
             variant="outline"
             size="sm"
@@ -317,7 +317,7 @@ export function CollectionPanel() {
             className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
           >
             <RotateCcw className="size-3.5" />
-            Clear all filters
+            清除所有筛选
           </Button>
         </div>
       )}
