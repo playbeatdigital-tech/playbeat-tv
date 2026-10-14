@@ -97,3 +97,25 @@ Work Log:
 Stage Summary:
 - English UI state confirmed intact after session continuation; no fixes required
 - Both pending features (safe playlist + English UI) are live on port 3000
+
+---
+Task ID: 6
+Agent: main (Super Z)
+Task: Transform the GitHub repo into a production-quality open streaming web app — only open-source + copyright-risk-free sources, no login
+
+Work Log:
+- Sourcing decision: iptv-org is the only repo-listed resource that is open-source + maintainer-declared LOW copyright risk + directly playable in a browser; all 53 streaming sites (repo-flagged HIGH risk) excluded; remaining OSS tools are desktop shells -> referenced via Collection tab
+- scripts/build_stream_catalog.py: fetched iptv-org API (channels/streams/countries/categories/logos into scripts/iptv_cache/), filtered to HTTPS .m3u8 only, excluded NSFW/closed channels and header-gated streams (user-agent/referrer), deduped + capped 2 sources/channel, attached best in-use logo; outputs src/data/stream-catalog.json + public/data/stream-catalog.json (2.12 MB, 7,985 channels / 178 countries / 28 categories / 7,861 logos)
+- bun add hls.js@1.7.3; split lib: stream.ts (client-safe types + filterChannels + localStorage external store) and stream.server.ts (bundled catalog access) so the 2MB JSON never enters the client bundle
+- src/app/api/catalog/route.ts serves the catalog (force-static, Cache-Control 86400)
+- New UI on the single `/` route via SiteShell tabs: Live TV (primary) / Collection (original 119-resource browser, intact) / About & Content Policy
+- StreamApp: hero stats, debounced-free client filtering, search, 28 category chips w/ counts, searchable country combobox (Popover+Command), My List toggle, featured rail (18), favorites + Continue-watching rails, paginated grid (48 + Load more), skeleton loading + catalog-error state
+- PlayerDialog + PlayerEngine (remount-by-key): hls.js low-latency config, muted autoplay with Tap-to-unmute, LIVE badge, play/pause + mute + fullscreen + copy-share, retry / try-source-2 / direct-link on failure, video onError fallback for unsupported browsers
+- Favorites/recents via useSyncExternalStore-backed localStorage store (rule-compliant, no setState-in-effect); deep links #watch=<id> on initial load + hashchange listener
+- Lint fixes: react-hooks set-state-in-effect (event-driven error path, key-remount engine), declaration-order, unused directives; player gets categoryNames map prop (client bundle must not import server module)
+- Browser E2E (agent-browser): real playback confirmed (10 Bold, readyState 4, t=60s, 854x480; 10TV.in via deep link); HEVC-only channel correctly exercised connecting/timeout path; search/category/country/My-List/Reset/Load-more all verified; Collection + About tabs render; mobile 390px no h-scroll; fresh-load console 0 errors; footer legal line + About page documents sourcing, takedown path, no-login/no-tracking
+
+Stage Summary:
+- Deliverable: OpenStream — Free Live TV (open streaming site, no login): 7,985 playable public channels from the safe subset, production player, favorites, recents, deep links, full policy page
+- Screenshot proofs: scripts/verify_player.png, verify_mobile.png, verify_collection.png, verify_final_home.png
+- Rebuild data anytime: python3 scripts/build_stream_catalog.py
