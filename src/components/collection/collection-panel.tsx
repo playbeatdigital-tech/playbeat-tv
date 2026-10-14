@@ -25,9 +25,12 @@ import {
   Tv,
   RotateCcw,
   SearchX,
+  ListMusic,
+  LayoutGrid,
 } from "lucide-react";
 import { ResourceCard } from "@/components/collection/resource-card";
 import { ResourceDialog } from "@/components/collection/resource-dialog";
+import { PlaylistView } from "@/components/collection/playlist-view";
 import { cn } from "@/lib/utils";
 import {
   categoryZh,
@@ -83,6 +86,7 @@ const AVAILABILITY_TABS: { key: AvailabilityFilter; label: string; count: number
 /* ---------- component ---------- */
 
 export function CollectionPanel() {
+  const [view, setView] = useState<"all" | "playlist">("all");
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string>("all");
   const [availability, setAvailability] = useState<AvailabilityFilter>("all");
@@ -166,6 +170,46 @@ export function CollectionPanel() {
 
   return (
     <section className="flex-1" aria-label="资源合集">
+      {/* View switcher */}
+      <div
+        className="mb-4 inline-flex rounded-lg border border-zinc-800 bg-zinc-900/40 p-1"
+        role="tablist"
+        aria-label="切换视图"
+      >
+        <button
+          role="tab"
+          aria-selected={view === "all"}
+          onClick={() => setView("all")}
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors",
+            view === "all"
+              ? "bg-amber-500/15 text-amber-300"
+              : "text-zinc-400 hover:text-zinc-200"
+          )}
+        >
+          <LayoutGrid className="size-4" />
+          全部资源
+        </button>
+        <button
+          role="tab"
+          aria-selected={view === "playlist"}
+          onClick={() => setView("playlist")}
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors",
+            view === "playlist"
+              ? "bg-amber-500/15 text-amber-300"
+              : "text-zinc-400 hover:text-zinc-200"
+          )}
+        >
+          <ListMusic className="size-4" />
+          安全播放列表
+        </button>
+      </div>
+
+      {view === "playlist" ? (
+        <PlaylistView />
+      ) : (
+      <>
       {/* Availability stat tabs */}
       <div
         className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5"
@@ -320,6 +364,8 @@ export function CollectionPanel() {
             清除所有筛选
           </Button>
         </div>
+      )}
+      </>
       )}
 
       <ResourceDialog item={detail} open={dialogOpen} onOpenChange={setDialogOpen} />

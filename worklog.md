@@ -50,3 +50,19 @@ Work Log:
 Stage Summary:
 - Panel UI now fully in Simplified Chinese; resource data (names/summaries/notes) remains original Chinese from source
 - Same route/features as before, no functional changes
+
+---
+Task ID: 4
+Agent: main (Super Z)
+Task: Add a safe playlist view (direct streaming links, no high copyright risk, no Chinese movies/webseries)
+
+Work Log:
+- Analyzed qualifying pool: repo flags 90/119 as high copyright risk (all online streaming sites) -> honestly excluded; 6 items low/medium risk (Kodi, IPTV-org, 3 CN subtitle sites, PanSou); 23 open-source tools with undeclared risk
+- Built src/lib/playlist.ts: transparent criteria (exclude copyright=high, exclude CN content tags [国内剧/国剧/中文/华语/大陆/热播剧/电视剧/港剧/国产], exclude subtitle category, streaming-relevant categories only), 5 groups via tag heuristics (公开直播源 / 动漫番剧 / 影视应用需自配源 / 播放器TVBox壳 / 辅助工具), sort by declared-risk + availability
+- Built src/components/collection/playlist-view.tsx: honest amber criteria banner + disclaimer, stat badges, 包含开源工具 toggle (default on; off = only 2 declared items), numbered playlist rows with copy-link + 打开 buttons, 复制全部链接 with toast
+- Wired view switcher (全部资源 / 安全播放列表 tabs) into collection-panel.tsx
+- Browser-verified: playlist renders 25 items in 4 groups (live 3 / anime 3 / app 3 / player 10 / tool 6), strict mode -> 2 items, copy-all toast 已复制 25 条链接, grid view unaffected (119), zero console errors
+
+Stage Summary:
+- New 安全播放列表 view: only publicly-legal IPTV sources + open-source tools; no high-risk streaming sites, no Chinese drama content
+- Honest disclaimer that "no copyright risk" = repo self-declared labels, not legal guarantee
