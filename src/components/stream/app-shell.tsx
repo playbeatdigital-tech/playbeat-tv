@@ -22,7 +22,6 @@ import {
   Menu,
   Newspaper,
   PanelRight,
-  Play,
   Radio,
   Search,
   Trophy,
@@ -444,9 +443,11 @@ export function AppShell({
             className="flex shrink-0 items-center gap-2.5"
             aria-label="Playbeat TV home"
           >
-            <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-amber-300 to-yellow-500 shadow-lg shadow-amber-500/25">
-              <Play className="size-4 fill-[#0a0a15] text-[#0a0a15]" />
-            </span>
+            <img
+              src="/brand/logo-mark.png"
+              alt="PlayBeat TV logo"
+              className="size-9 rounded-xl object-cover shadow-lg shadow-amber-500/25 ring-1 ring-amber-400/30"
+            />
             <span className="hidden flex-col leading-none sm:flex">
               <span className="text-[15px] font-extrabold tracking-tight text-white">
                 PLAYBEAT{" "}
@@ -639,9 +640,11 @@ export function AppShell({
         <div className="mx-auto grid w-full max-w-[1600px] gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
             <div className="flex items-center gap-2">
-              <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-amber-300 to-yellow-500">
-                <Play className="size-3.5 fill-[#0a0a15] text-[#0a0a15]" />
-              </span>
+              <img
+                src="/brand/logo-mark.png"
+                alt="PlayBeat TV logo"
+                className="size-8 rounded-lg object-cover ring-1 ring-amber-400/30"
+              />
               <span className="text-lg font-extrabold tracking-tight">
                 PLAYBEAT{" "}
                 <span className="bg-gradient-to-r from-amber-300 to-yellow-500 bg-clip-text text-transparent">
@@ -788,9 +791,11 @@ export function AppShell({
         >
           <SheetTitle className="sr-only">Navigation</SheetTitle>
           <div className="flex items-center gap-2.5 border-b border-white/5 px-4 py-4">
-            <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-amber-300 to-yellow-500">
-              <Play className="size-3.5 fill-[#0a0a15] text-[#0a0a15]" />
-            </span>
+            <img
+              src="/brand/logo-mark.png"
+              alt="PlayBeat TV logo"
+              className="size-8 rounded-lg object-cover ring-1 ring-amber-400/30"
+            />
             <span className="text-sm font-extrabold tracking-tight">
               PLAYBEAT{" "}
               <span className="bg-gradient-to-r from-amber-300 to-yellow-500 bg-clip-text text-transparent">

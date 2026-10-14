@@ -28,14 +28,15 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Playbeat TV" }],
   icons: {
-    icon: "/logo.svg",
+    icon: "/brand/logo-mark-512.png",
+    apple: "/brand/logo-mark-512.png",
   },
   openGraph: {
     title: "Playbeat TV — Free Live TV & Streaming, No Login",
     description:
       "7,985+ public free-to-air channels in your browser. No login, no tracking — only open-source, copyright-safe sources.",
-    url: "https://chat.z.ai",
     siteName: "Playbeat TV",
+    images: [{ url: "/brand/logo-full.png", width: 900, height: 561 }],
     type: "website",
   },
   twitter: {
